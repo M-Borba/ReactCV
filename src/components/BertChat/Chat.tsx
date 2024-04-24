@@ -10,9 +10,17 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 
 
+
 const passage = `
-I'm Martin, a 25-year-old computer engineer who loves AI and enjoys various activities. 
-Feel free to ask me anything about my background, interests, or projects!
+Hello, hi.
+Martín Borba is a computer engineer from Fing UDELAR in Montevideo, Uruguay, having graduated in 2024.
+Martín was born on August 28, 1998, making me 25 years old. 
+With a strong passion for artificial intelligence, particularly machine learning, I've dedicated my academic and professional career to exploring its endless possibilities.
+My thesis focused on object detection, specifically on detecting damages in wind turbine blades, showcasing my interest in applying AI to real-world challenges.
+Outside of work, I lead an active lifestyle and love to learn. I like training, lifting weights, or running along the beautiful "rambla" in Montevideo. 
+I'm also an avid cyclist, basketball player, and chess enthusiast. 
+In my fretime, I like watching series and movies, especially NBA basketball games. 
+Currently, I reside in Montevideo with my two beloved pets, a cat, and a dog.
 `;
 
 
@@ -73,11 +81,13 @@ export default function Chat() {
     const loadModel = async () => {
       try {
         const loadedModel = await qna.load();
-        bertModel.current =loadedModel;
+        console.log("loadedModel",loadedModel)
+        bertModel.current = loadedModel;
         setLoading(false);
+        return true;
       } catch (error) {
         console.error('Error loading QnA model:', error);
-        setLoading(false);
+        return false
       }
     };
 
@@ -90,12 +100,17 @@ export default function Chat() {
   }, []);
 
   const onSubmit = (text: string)=> {
-    setMessages([...messages,{type:"user",text}])
-    console.log("bertModel",bertModel)
-    bertModel?.current.findAnswers(text, passage).then((answers: any) => {
-      console.log('Answers: ', answers);
-      setMessages([...messages,{type:"bert",text:answers[0].text}])
-    });
+    setMessages(prevMessages => [...prevMessages, { type: "user", text }]);
+      console.log("---",bertModel?.current.findAnswers, text, passage)
+      bertModel?.current.findAnswers(text, passage)
+      .then((answers: any) => {
+        console.log('Answers: ', answers);
+        setMessages(prevMessages => [...prevMessages, { type: "bert", text: answers[0]?.text || "...mmm I don't know" }]);
+      })
+      .catch(error => {
+        console.error('Error finding answers:', error);
+        setMessages(prevMessages => [...prevMessages, { type: "bert", text: "An error occurred while processing your question" }]);
+      });
     
   }
   return (

@@ -26,21 +26,21 @@ const useStyles = makeStyles((theme: Theme) =>
 export const TextInput = ({handleSubmit}) => {
     const classes = useStyles();
     const [text,setText] = useState("") 
-
-    const localSubmit = ()=>{
-        if(text == "") return
+    const localSubmit = (e: any)=>{
+        e.preventDefault()
+        if(!text) return
         handleSubmit(text)
         setText("")
     }
 
     return (
         <>
-            <form className={classes.wrapForm}  noValidate autoComplete="off">
+            <form className={classes.wrapForm}  noValidate autoComplete="off" onSubmit={localSubmit}>
             <TextField
                 id="standard-text"
                 label="Chat with MBert"
                 className={classes.wrapText}
-                onChange={(e: any )=>setText(e.target.value)}
+                onChange={(e: any )=>{setText(e.target.value)}}
                 value={text} 
             />
             <Button variant="contained" color="primary" className={classes.button} onClick={localSubmit}>
