@@ -6,7 +6,6 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Chat from '../../components/BertChat/Chat';
-import { useState } from 'react';
 function MBorba() {
 
   return (
@@ -23,7 +22,7 @@ function MBorba() {
             Martín Borba's personal page
           </Typography>
           <Typography variant="h5" component="h2" gutterBottom>
-          Hi, I'm a computer engineer from <a href="https://www.fing.edu.uy/" target="_blank">Fing UDELAR</a> . Currently, I work as a Fullstack developer, crafting web applications. While I enjoy being involved in every aspect of the application, I have a particular passion for backend development. 
+          Hi, I'm a computer engineer from <a href="https://www.fing.edu.uy/" target="_blank">Fing UDELAR</a> . Currently, I work as a Fullstack developer, crafting web applications. While I enjoy being involved in every aspect of the application, I have a preference for backend development. 
           </Typography>
           {/* <Typography variant="h3" component="h1" gutterBottom>
             Background
@@ -56,8 +55,11 @@ function MBorba() {
         </p>
         <p className="light-text">Open your mouth to eat the falling food, and always face the camera forward for better detection</p>
       </div>
-      <Chat/>
       <GameCamComponent /> 
+
+       <p className="light-text">Ask about me !</p>
+      <Chat/>
+
     </div>
   )
 }

@@ -1,9 +1,8 @@
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import Avatar from "@material-ui/core/Avatar";
-import { deepOrange } from "@material-ui/core/colors";
+import Avatar from '@mui/material/Avatar';
+import { deepOrange } from '@mui/material/colors';
+import { makeStyles } from '@mui/styles';
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
+const useStyles = makeStyles(() =>({
     "@keyframes stretch": {
       "0%": {
         transform: "scale(0.9)"
@@ -21,7 +20,7 @@ const useStyles = makeStyles((theme: Theme) =>
       justifyContent: "flex-end"
     },
     messageBlue: {
-      animation: `$stretch 2s ${theme.transitions.easing.easeInOut}`,
+      animation: `$stretch 2s ease-in-out`,
       position: "relative",
       marginLeft: "20px",
       marginBottom: "10px",
@@ -57,7 +56,7 @@ const useStyles = makeStyles((theme: Theme) =>
       }
     },
     messageOrange: {
-      animation: `$stretch 2s ${theme.transitions.easing.easeInOut}`,
+      animation: `$stretch 2s ease-in-out`,
       position: "relative",
       marginRight: "20px",
       marginBottom: "10px",
@@ -99,19 +98,15 @@ const useStyles = makeStyles((theme: Theme) =>
     },
 
     orange: {
-      color: theme.palette.getContrastText(deepOrange[500]),
+      color: deepOrange[500],
       backgroundColor: deepOrange[500],
-      width: theme.spacing(4),
-      height: theme.spacing(4)
     },
     displayName: {
       marginLeft: "20px"
     }
-  })
-);
+  }));
 
-//avatarが左にあるメッセージ（他人）
-export const BertMessage = (props) => {
+export const BertMessage = (props:any) => {
   const message = props.message ? props.message : "no message";
   const classes = useStyles();
   return (
