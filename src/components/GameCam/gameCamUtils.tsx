@@ -1,6 +1,6 @@
 
 
-export type WebcamState = 'notStarted' | 'settingUp' | 'setUpDone';
+export type GameSetup = 'notStarted' | 'settingUp' | 'setUpDone' | 'error';
 
 export interface Point {
   x: number;

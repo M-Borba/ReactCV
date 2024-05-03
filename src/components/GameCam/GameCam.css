@@ -2,19 +2,37 @@
   position: absolute;
   top: 0; 
   left: 0;
+  border-radius:10px;
 }
 
-.display-container{
+.camera-container{
   position: relative;
   width: 640px;
   height: 480px;
   transform: scaleX(-1); /* Apply horizontal mirroring */
   align-self: center;
+  box-shadow: black 1px 1px 20px;
 }
-.game-container{
+
+.display-container{
+  background-image: url("src/assets/aiFoodBackground.webp");
+  box-shadow: black 0px 0px 20px;
+  background-size: cover; /* Cover the entire container */
   display: flex;
   height:100%;
   flex-direction: column;
+  border-radius: 5px;
+  align-items: center;
+}
+
+.game-container{
+  border-radius: 20px;
+  color:#f3f3f3;
+  text-shadow: #0a064f 2px 1px 5px;
+  background-color: #273787;
+    background-image: linear-gradient(to bottom, #273787, #142165);
+
+  padding:1%;
 }
 
 .canvas {
@@ -23,15 +41,6 @@
   left: 0;
 }  
 
-.loader {
-  align-self: center;
-  border: 10px solid #f3f3f3;
-  border-top: 10px solid #3498db;
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  animation: spin 1s linear infinite;
-}
 
 @keyframes spin {
   0% {

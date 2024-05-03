@@ -43,12 +43,9 @@ function MBorba() {
         >
         </Box>
       </Box>
-      <h1>Martín Borba </h1>
+      <h1>ML simple demos </h1>
       <div className="card">
-          System Analist
-        <p>
          
-        </p>
         <p className="light-text">
           Here is a simple game demo implemented using pre-trained 
            <a href="https://github.com/tensorflow/tfjs-models/blob/master/face-landmarks-detection/README.md" target="_blank"> face mesh model</a> from tensorflow.js, eat as much as you can under 30 seconds! 
@@ -56,8 +53,9 @@ function MBorba() {
         <p className="light-text">Open your mouth to eat the falling food, and always face the camera forward for better detection</p>
       </div>
       <GameCamComponent /> 
-
-       <p className="light-text">Ask about me !</p>
+      <div className="card">
+       <p className="light-text">Ask about me ! Here is a LLM model that you can ask simple questions about me</p>
+      </div>  
       <Chat/>
 
     </div>

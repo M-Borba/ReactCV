@@ -3,9 +3,11 @@ import '@mediapipe/face_mesh';
 import '@tensorflow/tfjs-core';
 // Register WebGL backend.
 import '@tensorflow/tfjs-backend-webgl';
+import Box from '@mui/material/Box';
+import LinearProgress from '@mui/material/LinearProgress';
 import * as faceLandmarksDetection from '@tensorflow-models/face-landmarks-detection';
 import './GameCam.css'
-import { WebcamState, GameScore, GameState, Point, Food, checkCollision, distance, drawFood } from './gameCamUtils';
+import { GameSetup, GameScore, GameState, Point, Food, checkCollision, distance, drawFood } from './gameCamUtils';
 
 
 const junkFoodList=['🍔','🍕','🍟']
@@ -27,7 +29,7 @@ const GameCamComponent = () =>  {
   
   const videoRef= useRef<any>();
   const canvasRef = useRef<any>();
-  const [modelSetup, setModelSetup] = useState<WebcamState>('notStarted');
+  const [setup, setGameSetup] = useState<GameSetup>('notStarted');
   const [gameScore, setGameScore] = useState<GameScore>(initialGameScore);
   const [isMouthOpen, setIsMouthOpen] = useState(false);
   const detectionInterval =  useRef<any>();
@@ -211,19 +213,20 @@ const GameCamComponent = () =>  {
         await faceLandmarksDetection.createDetector(model, detectorConfig).then((det:any)=>{
           detector.current=det
         })
-        setModelSetup('setUpDone')
+        setGameSetup('setUpDone')
   
         const interval = setInterval(()=>gameLoop(), gameVelocity); // 1000 ms = 1 second
         detectionInterval.current = interval;
 
       } catch (error) {
-        console.error('Error accessing webcam:', error);
+        console.error('Error seting up webcam and model:', error);
+        setGameSetup('error')
       }
     };
 
     // Check if webcam setup is done before calling setupWebcam
-    if (modelSetup=='notStarted') {
-      setModelSetup('settingUp')
+    if (setup=='notStarted') {
+      setGameSetup('settingUp')
       setupWebcam();
     }
     
@@ -242,22 +245,30 @@ const GameCamComponent = () =>  {
   return (
     <div className="game-container">
       <h2>🍔 🍕 🍟 😋 Picky eater game 🤮 🍎 🥦 🥕</h2>
-          {modelSetup !== 'setUpDone' &&  (
+        <div className="display-container">
+          {setup !== 'settingUp' &&  (
           <>
-            <div className="loader"/>
+          <Box sx={{ width: '100%' }}>
+            <LinearProgress />
+          </Box>
             <p>Loading model</p>
           </>
           )}
-          <div className="display-container">
+          {setup !== 'error' &&  (
+          <>
+            <p>Error loading webcam and model</p>
+          </>
+          )}
+          <div className="camera-container">
             <video ref={videoRef} width="640" height="480" className="video" />
             <canvas ref={canvasRef} width="640" height="480" className="canvas" />
           </div>
-    <h2>  {isMouthOpen ? '😮' : '😐' } </h2> 
+          <h2>  {isMouthOpen ? '😮' : '😐' } </h2> 
+        </div>
     <p>  Score: {gameScore.junkEaten} junk food eaten, {gameScore.junkOnFloor} fell on the floor  </p> 
-
     <button onClick={startGame}>Play ▶</button>
     <button onClick={()=>{gameState.current.showLandMarks = !gameState.current.showLandMarks}}>
-       { gameState.current.showLandMarks ? 'Hide LandMarks':'Show LandMarks' }
+       {gameState.current.showLandMarks ? 'Hide LandMarks':'Show LandMarks' }
        {gameState.current.capturedImage && gameState.current.time==-1 && 
        <div className="fixed-center">
         <div className="photograph">

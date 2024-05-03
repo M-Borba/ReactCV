@@ -38,8 +38,15 @@ export const TextInput = ({ handleSubmit }: any) => {
           className={classes.wrapText}
           onChange={(e: any) => { setText(e.target.value) }}
           value={text}
+          sx={{margin:"1%"}}
         />
-        <Button variant="contained" color="primary" className={classes.button} onClick={localSubmit}>
+        <Button 
+         variant="contained"
+         color="primary"
+         className={classes.button}
+         onClick={localSubmit}
+         sx={{margin:"1%"}}
+        >
           <SendIcon />
         </Button>
       </form>
