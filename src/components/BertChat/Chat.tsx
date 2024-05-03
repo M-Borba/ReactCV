@@ -9,6 +9,7 @@ import { makeStyles } from '@mui/styles';
 import ErrorIcon from '@mui/icons-material/Error';
 import MoreInfoButton from "../MoreInfoButton.js";
 import TextField from '@mui/material/TextField';
+import chatBackground from "./../../assets/aiChatBackground.jpeg";
 
 
 
@@ -62,7 +63,7 @@ const useStyles = makeStyles(() => ({
       display: "flex",
       background:"grey",
       padding:"2%",
-      backgroundImage: `url("src/assets/aiChatBackground.jpeg")`,
+      backgroundImage: `url(${chatBackground})`,
       backgroundSize: "cover",
       borderRadius:"10px",
     },

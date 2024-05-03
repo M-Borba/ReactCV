@@ -15,7 +15,7 @@
 }
 
 .display-container{
-  background-image: url("src/assets/aiFoodBackground.webp");
+  background-image: url("../../assets/aiFoodBackground.webp");
   box-shadow: black 0px 0px 20px;
   background-size: cover; /* Cover the entire container */
   display: flex;
