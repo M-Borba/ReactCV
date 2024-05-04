@@ -2,7 +2,7 @@ import IconButton from '@mui/material/IconButton';
 import Popover from '@mui/material/Popover';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import CloseIcon from '@mui/icons-material/Close';
-
+import { useTheme} from '@mui/material/styles';
 import { useState } from 'react';
 
 interface MoreInfoButtonProps {
@@ -10,18 +10,18 @@ interface MoreInfoButtonProps {
   content: any;
 }
 const MoreInfoButton= ({ title, content }:MoreInfoButtonProps) => {
+  const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+      setAnchorEl(event.currentTarget);
+    };
 
-const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
+  const handleClose = (e: any) => {
+    if (e.target instanceof SVGElement)  
+    setAnchorEl(null);
+    else
+    setAnchorEl(null); // remove if only want to close with X button
   };
-
-const handleClose = (e: any) => {
-  if (e.target instanceof SVGElement)  
-   setAnchorEl(null);
-   else
-   setAnchorEl(null); // remove if only want to close with X button
-};
 
 
   const open = Boolean(anchorEl);
@@ -31,7 +31,7 @@ const handleClose = (e: any) => {
       <IconButton 
        color="primary"
        onClick={handleClick }
-       sx={{backgroundColor: 'white'}}
+       sx={{ bgcolor: theme.palette.background.default,}}
       >
         <HelpOutlineIcon />
       </IconButton>

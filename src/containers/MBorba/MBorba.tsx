@@ -6,6 +6,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Chat from '../../components/BertChat/Chat';
+
 function MBorba() {
 
   return (
@@ -29,19 +30,7 @@ function MBorba() {
           </Typography>
           <Typography variant="body1">Sticky footer placeholder.</Typography> */}
         </Container>
-        <Box
-          component="footer"
-          sx={{
-            py: 3,
-            px: 2,
-            mt: 'auto',
-            backgroundColor: (theme:any) =>
-              theme.palette.mode === 'light'
-                ? theme.palette.grey[200]
-                : theme.palette.grey[800],
-          }}
-        >
-        </Box>
+    
       </Box>
       <h1>ML simple demos </h1>
       <div className="card">
