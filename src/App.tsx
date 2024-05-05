@@ -17,17 +17,22 @@ const getDesignTokens = (mode: string):any => ({
         main: indigo[200],
       }),
     },
-    ...(mode === 'dark' && {
+    ...(mode === 'dark' ? {
       background: {
         default: grey[900],
-        paper: grey[900],
-      },
+        paper: grey[800],
+      }
+    }:{
+       background: {
+        default: grey[300],
+        paper: grey[100],
+      }
     }),
     text: {
       ...(mode === 'light'
         ? {
             primary: grey[900],
-            secondary: grey[800],
+            secondary: grey[850],
           }
         : {
             primary: '#fff',
@@ -44,7 +49,7 @@ function App() {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const [mode, setMode] = useState(prefersDarkMode?'dark':'light');
   const theme = useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
-
+  console.log("theme",theme)
    return (
       <ThemeProvider theme={theme}>
       <CssBaseline />

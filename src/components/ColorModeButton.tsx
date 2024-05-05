@@ -5,8 +5,6 @@ import { useTheme} from '@mui/material/styles';
 
 const ColorModeButton = ({onClick}:any) => {
  const theme = useTheme();
- console.log("theme",theme, typeof onClick)
-
     return (
     <IconButton  
         sx={{
