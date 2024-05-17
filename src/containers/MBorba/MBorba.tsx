@@ -5,9 +5,28 @@ import GameCamComponent from '../../components/GameCam/GameCam';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
+import ContactPageIcon from '@mui/icons-material/ContactPage';
+import DescriptionIcon from '@mui/icons-material/Description';
+import DownloadIcon from '@mui/icons-material/Download';
+import Button from  '@mui/material/Button';
 import Chat from '../../components/BertChat/Chat';
 
 function MBorba() {
+// todo add scolarship pdf :https://stackoverflow.com/questions/66811401/material-ui-how-to-download-a-file-when-clicking-a-button
+  
+  const onDownloadScolarship = () => {
+    const link = document.createElement("a");
+    link.download = 'MborbaScolarship.pdf';
+    link.href = "src/assets/MborbaScolarship.pdf";
+    link.click();
+  };
+  const onDownloadCV =()=>{
+    const link = document.createElement("a");
+    link.download = 'Martín Borba López CV.pdf';
+    link.href = "src/assets/Martín Borba López CV.pdf";
+    link.click();
+    
+  }
 
   return (
     <div>
@@ -23,12 +42,16 @@ function MBorba() {
             Martín Borba's personal page
           </Typography>
           <Typography variant="h5" component="h2" gutterBottom>
-          Hi, I'm a computer engineer from <a href="https://www.fing.edu.uy/" target="_blank">Fing UDELAR</a> . Currently, I work as a Fullstack developer, crafting web applications. While I enjoy being involved in every aspect of the application, I have a preference for backend development. 
+          Hi, I'm a computer engineer from <a href="https://www.fing.edu.uy/" target="_blank">Fing UDELAR</a> .
+          Currently, I work as a Fullstack developer, crafting web applications.
+           While I enjoy being involved in every aspect of the application, I have a preference for backend development. 
           </Typography>
-          {/* <Typography variant="h3" component="h1" gutterBottom>
-            Background
-          </Typography>
-          <Typography variant="body1">Sticky footer placeholder.</Typography> */}
+            <Button onClick={onDownloadScolarship} variant="contained" color="primary">
+               <DownloadIcon/>Scolarship<DescriptionIcon/>
+            </Button>
+             <Button onClick={onDownloadCV} variant="contained" color="primary">
+             <DownloadIcon/>Curriculum<ContactPageIcon/>
+            </Button>
         </Container>
     
       </Box>

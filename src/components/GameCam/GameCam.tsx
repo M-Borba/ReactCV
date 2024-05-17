@@ -12,7 +12,7 @@ import MoreInfoButton from '../MoreInfoButton';
 
 
 const junkFoodList=['🍔','🍕','🍟']
-// const healthyFoods = ['🍎','🥦','🥕']
+// const healthyFoods = ['🍎','🥦','🥕'] // TODO
 // const specialFood = ['🌶️']
 
 const gameVelocity = 200;
@@ -249,7 +249,7 @@ const GameCamComponent = () =>  {
         <div className="display-container">
           {setup !== 'settingUp' &&  (
           <>
-          <Box sx={{ width: '100%' }}>
+          <Box sx={{ width: '100%'}}>
             <LinearProgress />
           </Box>
             <p>Loading model</p>

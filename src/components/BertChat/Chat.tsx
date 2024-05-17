@@ -10,6 +10,7 @@ import { makeStyles } from '@mui/styles';
 import ErrorIcon from '@mui/icons-material/Error';
 import MoreInfoButton from "../MoreInfoButton.js";
 import TextField from '@mui/material/TextField';
+import Stack from '@mui/material/Stack';
 import chatBackground from "./../../assets/aiChatBackground.jpeg";
 
 
@@ -17,19 +18,32 @@ import chatBackground from "./../../assets/aiChatBackground.jpeg";
 
 const initialPassage = `Martín Borba is a Computer Engineer from Fing UDELAR in Montevideo , Uruguay . He graduated in February 2024 .
 Martín was born on August 28 , 1998 , making him 25 years old .
-He has a strong passion for artificial intelligence , especially machine learning , and has focused his academic and professional career on exploring its possibilities .
+He has a strong passion for artificial intelligence, especially machine learning, which these days has multiple applications.
 His thesis focused on detecting damages in wind turbine blades using AI .
 Martín leads an active lifestyle . 
-He likes training , running , cycling , playing basketball , and chess .
-In his free time , he likes watching series , movies , or a NBA basketball game.
-Martín currently lives in Montevideo with his cat and dog .`;
+His likes training, going for a run , cycling , playing basketballs .
+In his free time, he likes to do activities like sports, watching movies or NBA basketball games.
+The sports that Martín practices are cycling, basketball, running, judo and chess. 
+Martín currently lives in Montevideo .`;
 
 
 // or you can specify the model url.
 // config = {modelUrl: 'https://yourown-server/qna/model.json'};
 // customModel = await qna.load(config);
 
-
+const questionSamples = [
+"Who is Martín?",
+"How old is Martín?",
+"When was he born?",
+"Where is he from?",
+"What does he like?",
+"What part of artificial intelligence does he like?",
+"What activities does he do?",
+"What was his thesis about?",
+"What sports does he practice?",
+"Where does he currently live",
+"What type of lifestyle does Martin has?"
+]
 
 const useStyles = makeStyles(() => ({
     paper: {
@@ -54,7 +68,8 @@ const useStyles = makeStyles(() => ({
 
     },
     container: {
-      justifyContent:"flex-start",
+      "overflow-y": "hidden",
+      justifyContent:"space-around",
       alignItems:"flex-start",
       gap:"10%",
       width: "100%",
@@ -136,7 +151,7 @@ export default function Chat() {
         <MoreInfoButton
         title=" What is this chat?"
         content={<div>
-                 <Typography variant="body3" paragraph>
+                 <Typography variant="body2" paragraph>
                   This BERT model, which stands for Bidirectional Encoder Representations from Transformers, has been specifically trained on a question-answering (QnA) dataset.{" "}
                   When provided with a 'passage' as input text, it can effectively respond to questions related to that passage.{" "}
                   However, it's important to mention that the model can only provide answers that are directly present or implied within the provided text.{" "}
@@ -157,6 +172,22 @@ export default function Chat() {
                   />
                 </div> }
         />
+      <Stack 
+        width="100%" 
+        spacing={2} 
+        sx={{
+          maxHeight: '90%',
+          overflowY: 'auto',
+          "scrollbar-width": "none",
+        }}
+      >
+        {questionSamples.map(
+          (question) => 
+            <div style={{ cursor: "pointer"}} >
+              <UserMessage message={question} onClick={()=>onSubmit(question)}/>
+            </div>
+        )}
+        </Stack>
     </div>
   );
 }

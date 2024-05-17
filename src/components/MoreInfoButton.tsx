@@ -42,10 +42,9 @@ const MoreInfoButton = ({ title, content, onClick,onClose }:MoreInfoButtonProps)
       <Popper
         open={open}
         anchorEl={anchorEl}
-        onClose={handleClose}
         placement="bottom-start"
-        disableScrollLock={false}
-        disableRestoreFocus // Prevents focus restoration after popover is closed
+        // disableScrollLock={false}
+        // disableRestoreFocus // Prevents focus restoration after popover is closed
       >
         <div 
         style={{ 

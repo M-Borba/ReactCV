@@ -134,7 +134,7 @@ export const UserMessage = (props:any) => {
   const classes = useStyles();
   const message = props.message ? props.message : "no message";
   return (
-    <div className={classes.messageRowRight}>
+    <div className={classes.messageRowRight} onClick={props.onClick}>
       <div className={classes.messageOrange}>
         <p className={classes.messageContent}>{message}</p>
       </div>
