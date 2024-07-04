@@ -123,7 +123,6 @@ export default function Chat() {
 
   const onSubmit = (text: string)=> {
     setMessages(prevMessages => [...prevMessages, { type: "user", text }]);
-      console.log("---",bertModel?.current?.findAnswers, text, passage)
       bertModel?.current.findAnswers(text, passage)
       .then((answers: any) => {
         console.log('Answers: ', answers);

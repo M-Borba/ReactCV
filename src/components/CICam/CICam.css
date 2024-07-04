@@ -1,0 +1,34 @@
+.video {
+  position: absolute;
+  border-radius:10px;
+}
+
+
+.display-container{
+  background-image: url("../../assets/aiFoodBackground.webp");
+  box-shadow: black 0px 0px 20px;
+  background-size: cover; /* Cover the entire container */
+  display: flex;
+  height:100%;
+  flex-direction: column;
+  border-radius: 5px;
+  align-items: center;
+}
+
+.game-container{
+  border-radius: 20px;
+  color:#f3f3f3;
+  text-shadow: #0a064f 2px 1px 5px;
+  background-color: #273787;
+    background-image: linear-gradient(to bottom, #273787, #142165);
+
+  padding:1%;
+}
+
+.canvas {
+  position: absolute;
+  top: 0; 
+  left: 0;
+  /* background-color: white; */
+}  
+

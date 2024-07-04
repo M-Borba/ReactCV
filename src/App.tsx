@@ -49,7 +49,6 @@ function App() {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const [mode, setMode] = useState(prefersDarkMode?'dark':'light');
   const theme = useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
-  console.log("theme",theme)
    return (
       <ThemeProvider theme={theme}>
       <CssBaseline />

@@ -10,6 +10,7 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import DownloadIcon from '@mui/icons-material/Download';
 import Button from  '@mui/material/Button';
 import Chat from '../../components/BertChat/Chat';
+import CIDetectionCam from '../../components/CICam/CIDetectionCam.jsx';
 
 function MBorba() {
 // todo add scolarship pdf :https://stackoverflow.com/questions/66811401/material-ui-how-to-download-a-file-when-clicking-a-button
@@ -69,6 +70,8 @@ function MBorba() {
        <p className="light-text">Ask about me ! Here is a LLM model that you can ask simple questions about me</p>
       </div>  
       <Chat/>
+
+      <CIDetectionCam/>
 
     </div>
   )
