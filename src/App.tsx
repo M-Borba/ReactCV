@@ -1,8 +1,7 @@
 import CssBaseline from '@mui/material/CssBaseline';
 import './App.css'
-// import MBorba from './containers/MBorba/MBorba'
-// import StickyFooter from './components/StickyFooter'
-import CIDetectionCam from './components/CICam/CIDetectionCam.jsx';
+import MBorba from './containers/MBorba/MBorba'
+import StickyFooter from './components/StickyFooter'
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import ColorModeButton from './components/ColorModeButton';
@@ -54,9 +53,8 @@ function App() {
       <ThemeProvider theme={theme}>
       <CssBaseline />
       <ColorModeButton onClick={()=> setMode(mode == 'light'? 'dark':'light') }/>
-      {/* <MBorba/> */}
-      <CIDetectionCam />
-      {/* <StickyFooter/> */}
+      <MBorba/>
+      <StickyFooter/>
     </ThemeProvider>
   );
 }
