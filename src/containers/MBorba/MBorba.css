@@ -1,5 +1,3 @@
-
-
 @keyframes spin {
   from {
     transform: rotate(0deg);
@@ -9,26 +7,71 @@
   }
 }
 
-/* @media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: spin infinite 20s linear;
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Improved typography and spacing */
+.demo-section {
+  margin-bottom: 3rem;
+}
+
+.demo-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.demo-description {
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.tip-text {
+  font-style: italic;
+  opacity: 0.8;
+  margin-bottom: 2rem;
+}
+
+/* Better button styling */
+.download-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
+/* Responsive design improvements */
+@media (max-width: 768px) {
+  .demo-title {
+    flex-direction: column;
+    text-align: center;
   }
-} */
-
-*{
-   font-size: 1em;
+  
+  .download-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
 }
 
-h2{
-  font-size: 2em;
+/* Enhanced card styling */
+.demo-card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
-.card {
-  padding: 1em;
-  font-size: 1.5em;
+.demo-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
-.light-text {
-  color: #888;
-  font-size: 0.8em;
+/* Link styling improvements */
+a {
+  transition: color 0.2s ease-in-out;
+}
+
+a:hover {
+  opacity: 0.8;
 }

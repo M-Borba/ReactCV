@@ -21,7 +21,7 @@ Martín was born on August 28 , 1998 , making him 25 years old .
 He has a strong passion for artificial intelligence, especially machine learning, which these days has multiple applications.
 His thesis focused on detecting damages in wind turbine blades using AI .
 Martín leads an active lifestyle . 
-His likes training, going for a run , cycling , playing basketballs .
+His likes training, going for a run , 3d printing, cycling and playing basketball .
 In his free time, he likes to do activities like sports, watching movies or NBA basketball games.
 The sports that Martín practices are cycling, basketball, running, judo and chess. 
 Martín currently lives in Montevideo .`;
@@ -38,7 +38,7 @@ const questionSamples = [
 "Where is he from?",
 "What does he like?",
 "What part of artificial intelligence does he like?",
-"What activities does he do?",
+"What activities does he like?",
 "What was his thesis about?",
 "What sports does he practice?",
 "Where does he currently live",
@@ -140,10 +140,10 @@ export default function Chat() {
         <Paper id="style-1" className={classes.messagesBody}>
           {modelSetup=='loading' && <CircularProgress />}
           {modelSetup === 'error' && (<><ErrorIcon /> Could not load model :(</>)}
-          {modelSetup==='done' && messages.map(msg=> 
+          {modelSetup==='done' && messages.map((msg,index)=> 
             msg.type=='bert' ? 
-            <BertMessage message={msg.text}/> : 
-            <UserMessage message={msg.text}/> )}
+            <BertMessage message={msg.text} key={(index+msg.text)}/> : 
+            <UserMessage message={msg.text} key={(index+msg.text)}/> )}
         </Paper>
         <TextInput text={""} handleSubmit={onSubmit} />
       </Paper>
@@ -181,8 +181,8 @@ export default function Chat() {
         }}
       >
         {questionSamples.map(
-          (question) => 
-            <div style={{ cursor: "pointer"}} >
+          (question,index) => 
+            <div style={{ cursor: "pointer"}} key={index+question} >
               <UserMessage message={question} onClick={()=>onSubmit(question)}/>
             </div>
         )}

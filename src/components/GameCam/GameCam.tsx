@@ -207,7 +207,7 @@ const GameCamComponent = () =>  {
           });
         };
         const model:any = faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh;
-        const detectorConfig:any = {
+       const detectorConfig:any = {
         runtime: 'tfjs', // or 'tfjs'
         solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh',
         }
