@@ -11,6 +11,8 @@ import { GameSetup, GameScore, GameState, Point, Food, checkCollision, distance,
 import MoreInfoButton from '../MoreInfoButton';
 
 
+const notFoundImg = 'https://i0.wp.com/learn.onemonth.com/wp-content/uploads/2017/08/1-10.png?fit=845%2C503&ssl=1'
+
 const junkFoodList=['🍔','🍕','🍟']
 // const healthyFoods = ['🍎','🥦','🥕'] // TODO
 // const specialFood = ['🌶️']
@@ -286,9 +288,10 @@ const GameCamComponent = () =>  {
       {gameState.current.capturedImage && gameState.current.time==-1 && 
        <div className="fixed-center">
         <div className="photograph">
-        <img src={gameState.current.capturedImage} alt="Captured image" />
+        <img src={gameState.current.capturedImage || notFoundImg } alt="Captured image" />
           <b>Seems like you had fun !</b>
         </div>
+        {/* UPDATE STYLE TO AVOID OVERLOW */}
        </div>
        }
     </div>

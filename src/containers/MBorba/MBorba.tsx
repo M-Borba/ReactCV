@@ -20,14 +20,14 @@ function MBorba() {
   const onDownloadScholarship = () => {
     const link = document.createElement('a');
     link.download = 'MBorba_scholarship.pdf';
-    link.href = 'src/assets/ReporteEscolaridadEgreso.pdf';
+    link.href = '/ReporteEscolaridadEgreso.pdf';
     link.click();
   };
 
   const onDownloadCV = () => {
     const link = document.createElement('a');
     link.download = 'MBorba_CV.pdf';
-    link.href = 'src/assets/Martín Borba López CV.pdf';
+    link.href = '/Martín Borba López CV.pdf';
     link.click();
   };
 
