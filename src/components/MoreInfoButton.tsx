@@ -8,8 +8,8 @@ import { useState } from 'react';
 interface MoreInfoButtonProps {
   title: string;
   content: any;
-  onClick?: Function;
-  onClose?: Function;
+  onClick?: () => void;
+  onClose?: () => void;
 }
 const MoreInfoButton = ({ title, content, onClick,onClose }:MoreInfoButtonProps) => {
   const theme = useTheme();

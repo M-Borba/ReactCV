@@ -210,8 +210,8 @@ const GameCamComponent = () =>  {
         };
         const model:any = faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh;
        const detectorConfig:any = {
-        runtime: 'tfjs', // or 'tfjs'
-        solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh',
+        runtime: 'mediapipe',
+        solutionPath: '/face_mesh',
         }
         await faceLandmarksDetection.createDetector(model, detectorConfig).then((det:any)=>{
           detector.current=det
@@ -249,7 +249,7 @@ const GameCamComponent = () =>  {
     <div className="game-container">
       <h2>🍔 🍕 🍟 😋 Picky eater game 🤮 🍎 🥦 🥕</h2>
         <div className="display-container">
-          {setup !== 'settingUp' &&  (
+          {setup === 'settingUp' &&  (
           <>
           <Box sx={{ width: '100%'}}>
             <LinearProgress />
@@ -257,7 +257,7 @@ const GameCamComponent = () =>  {
             <p>Loading model</p>
           </>
           )}
-          {setup !== 'error' &&  (
+          {setup === 'error' &&  (
           <>
             <p>Error loading webcam and model</p>
           </>
