@@ -101,7 +101,7 @@ export default function Chat() {
       try {
         setModelSetup('loading');
         const loadedModel = await qna.load();
-        console.log("loadedModel",loadedModel)
+        console.log("loadedChatModel",loadedModel)
         bertModel.current = loadedModel;
         setModelSetup('done');
         return true;
