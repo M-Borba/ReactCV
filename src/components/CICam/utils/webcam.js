@@ -6,19 +6,23 @@ export class Webcam {
    * Open webcam and stream it through video tag.
    * @param {HTMLVideoElement} videoRef video tag reference
    */
-  open = (videoRef) => {
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices
-        .getUserMedia({
-          audio: false,
-          video: {
-            facingMode: "environment",
-          },
-        })
-        .then((stream) => {
-          videoRef.srcObject = stream;
-        });
-    } else alert("Can't open Webcam!");
+  open = async (videoRef) => {
+    if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
+      throw new Error("WEBCAM_UNSUPPORTED");
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: {
+          facingMode: "environment",
+        },
+      });
+      videoRef.srcObject = stream;
+      return stream;
+    } catch (error) {
+      throw error;
+    }
   };
 
   /**
@@ -26,11 +30,11 @@ export class Webcam {
    * @param {HTMLVideoElement} videoRef video tag reference
    */
   close = (videoRef) => {
-    if (videoRef.srcObject) {
+    if (videoRef?.srcObject) {
       videoRef.srcObject.getTracks().forEach((track) => {
         track.stop();
       });
       videoRef.srcObject = null;
-    } else alert("Please open Webcam first!");
+    }
   };
 }
