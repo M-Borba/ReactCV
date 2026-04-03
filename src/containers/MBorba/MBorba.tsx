@@ -6,7 +6,6 @@ import Chip from '@mui/material/Chip';
 import Container from '@mui/material/Container';
 import Divider from '@mui/material/Divider';
 import Link from '@mui/material/Link';
-import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import ContactPageIcon from '@mui/icons-material/ContactPage';
@@ -31,28 +30,31 @@ type DemoDefinition = {
   whyBuilt: string[];
   tech: string[];
   githubUrl: string;
-  fallbackSrc: string;
-  fallbackAlt: string;
   loadingLabel: string;
   minHeight: number;
   loader: () => Promise<{ default: ComponentType }>;
 };
 
-const recruiterStack = [
-  'Next.js',
-  'React',
-  'TypeScript',
-  'Node.js',
-  'TensorFlow.js',
-  'Transformers.js',
+const profileStack = [
   'Python',
+  'Node.js',
   'PostgreSQL',
+  'FastAPI',
+  'TensorFlow',
+  'PyTorch',
+  'Docker',
+  'TypeScript',
 ];
 
-const recruiterSignals = [
-  'Full-stack product delivery',
-  'In-browser ML prototypes',
+const profileSignals = [
+  'ML backend systems',
+  'Inference and data pipelines',
   'API and system design',
+];
+
+const profileFacts = [
+  'Based in Montevideo, Uruguay',
+  'Computer engineer focused on backend systems, applied ML, and production-minded architecture',
 ];
 
 const demos: DemoDefinition[] = [
@@ -60,35 +62,31 @@ const demos: DemoDefinition[] = [
     title: 'Face Mesh Interaction Demo',
     icon: <SportsEsportsIcon fontSize="small" />,
     summary:
-      'Browser game driven by facial landmark detection. It shows I can turn computer vision primitives into a playful, production-style interaction.',
+      'Browser game driven by facial landmark detection. It turns computer vision primitives into a playful interaction that still feels product-aware.',
     whyBuilt: [
-      'Built to prove that real-time inference in the browser can feel responsive enough for consumer-facing UX.',
-      'I wanted a demo that translated raw landmarks into game state, collision logic, and feedback loops without server latency.',
-      'It also makes webcam permissions, model warmup, and graceful degradation visible to non-technical reviewers.',
+      'Built to prove that real-time browser inference can feel responsive enough for consumer-facing UX.',
+      'Landmarks become game state, collision logic, and feedback loops without any server round-trip.',
+      'It also makes webcam permissions, model warmup, and graceful degradation obvious to non-technical reviewers.',
     ],
     tech: ['TensorFlow.js', 'MediaPipe Face Mesh', 'Canvas', 'React'],
     githubUrl: 'https://github.com/M-Borba/ReactCV/tree/main/src/components/GameCam',
-    fallbackSrc: '/previews/face-mesh-fallback.gif',
-    fallbackAlt: 'Fallback GIF preview for the face mesh interaction demo.',
     loadingLabel: 'Loading face mesh demo...',
     minHeight: 560,
     loader: loadGameCam,
   },
   {
-    title: 'Recruiter Q&A Assistant',
+    title: 'Profile Q&A Assistant',
     icon: <SmartToyIcon fontSize="small" />,
     summary:
-      'Transformer-powered question answering over my profile. It gives recruiters a faster way to validate fit than scanning a long resume.',
+      'Transformer-powered question answering over my profile. It offers a faster way to explore key details than scanning static text.',
     whyBuilt: [
-      'Built to package my background into a searchable, conversational layer instead of relying only on static text.',
-      'The point was to show product thinking: reduce recruiter effort while exposing transformer inference directly in the browser.',
-      'I also wanted a demo where model limits are obvious, so the UX sets expectations and still remains useful.',
+      'Built to package my background into a searchable conversational layer instead of relying only on static text.',
+      'The product idea is simple: expose transformer inference directly in the browser through a practical interface.',
+      'It also shows where model limits appear, so the UX sets expectations while staying useful.',
     ],
     tech: ['Transformers.js', 'TensorFlow.js QnA', 'React', 'MUI'],
     githubUrl: 'https://github.com/M-Borba/ReactCV/tree/main/src/components/BertChat',
-    fallbackSrc: '/previews/assistant-fallback.gif',
-    fallbackAlt: 'Fallback GIF preview for the recruiter Q and A assistant.',
-    loadingLabel: 'Loading recruiter assistant...',
+    loadingLabel: 'Loading profile assistant...',
     minHeight: 520,
     loader: loadChat,
   },
@@ -98,307 +96,360 @@ const demos: DemoDefinition[] = [
     summary:
       'Webcam inference pipeline for defect detection with threshold controls. It highlights model serving, warmup, and user-visible confidence tuning.',
     whyBuilt: [
-      'Built as a concrete bridge between my thesis work and front-end product delivery.',
-      'I wanted to show that I can expose ML predictions in a UI that stakeholders can inspect, tune, and reason about.',
-      'This demo also makes reliability tradeoffs explicit when webcam access or device performance becomes the limiting factor.',
+      'Built as a direct bridge between thesis-style vision work and front-end product delivery.',
+      'The goal was to show ML predictions in a UI that stakeholders can inspect, tune, and reason about.',
+      'It also makes reliability tradeoffs visible when webcam access or device performance becomes the limiting factor.',
     ],
     tech: ['TensorFlow.js', 'YOLOv8 GraphModel', 'WebGL', 'React'],
     githubUrl: 'https://github.com/M-Borba/ReactCV/tree/main/src/components/CICam',
-    fallbackSrc: '/previews/vision-fallback.gif',
-    fallbackAlt: 'Fallback GIF preview for the computer vision detection demo.',
     loadingLabel: 'Loading CV detection demo...',
     minHeight: 520,
     loader: loadCIDetectionCam,
   },
 ];
 
-const previewSx = {
-  position: 'relative',
-  overflow: 'hidden',
-  borderRadius: 3,
-  border: '1px solid',
-  borderColor: 'divider',
-  background:
-    'linear-gradient(135deg, rgba(15,23,42,0.96), rgba(30,41,59,0.88) 50%, rgba(15,118,110,0.52))',
+const colors = {
+  pageText: '#f8fafc',
+  mutedText: 'rgba(226,232,240,0.72)',
+  bodyText: 'rgba(226,232,240,0.8)',
+  accent: '#5eead4',
+  line: 'rgba(148,163,184,0.16)',
+  chipBg: 'rgba(15,23,42,0.18)',
 };
 
-function MBorba() {
-  const onDownloadScholarship = () => {
-    const link = document.createElement('a');
-    link.download = 'MBorba_scholarship.pdf';
-    link.href = '/ReporteEscolaridadEgreso.pdf';
-    link.click();
-  };
+const pageBackground =
+  'radial-gradient(circle at top left, rgba(45,212,191,0.2), transparent 25%), radial-gradient(circle at 88% 10%, rgba(251,146,60,0.16), transparent 20%), radial-gradient(circle at 50% 100%, rgba(59,130,246,0.16), transparent 28%), linear-gradient(180deg, #020617 0%, #0f172a 42%, #111827 100%)';
 
-  const onDownloadCV = () => {
-    const link = document.createElement('a');
-    link.download = 'MBorba_CV.pdf';
-    link.href = '/Mart%C3%ADn%20Borba%20L%C3%B3pez%20CV.pdf';
-    link.click();
-  };
+const surfaceBackground =
+  'linear-gradient(140deg, rgba(15,23,42,0.88) 0%, rgba(30,41,59,0.8) 46%, rgba(15,118,110,0.42) 100%)';
 
-  const renderPreview = (demo: DemoDefinition) => (
-    <Box sx={previewSx}>
-      <Box
-        component="img"
-        src={demo.fallbackSrc}
-        alt={demo.fallbackAlt}
-        sx={{
-          width: '100%',
-          display: 'block',
-          aspectRatio: '16 / 9',
-          objectFit: 'cover',
-          opacity: 0.9,
-        }}
-      />
-      <Box
-        sx={{
-          position: 'absolute',
-          inset: 0,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          p: { xs: 2, md: 3 },
-          background:
-            'linear-gradient(180deg, rgba(15,23,42,0.12) 0%, rgba(15,23,42,0.2) 38%, rgba(15,23,42,0.78) 100%)',
-        }}
-      >
-        <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={2}>
-          <Chip
-            label="GIF fallback"
-            size="small"
+const surfaceOverlay =
+  'radial-gradient(circle at top right, rgba(255,255,255,0.14), transparent 24%), radial-gradient(circle at 20% 15%, rgba(251,191,36,0.1), transparent 22%)';
+
+const demoFrameBackground =
+  'linear-gradient(180deg, rgba(2,6,23,0.42), rgba(15,23,42,0.2))';
+
+const downloadFile = (filename: string, href: string) => {
+  const link = document.createElement('a');
+  link.download = filename;
+  link.href = href;
+  link.click();
+};
+
+function renderTechChip(label: string) {
+  return (
+    <Chip
+      key={label}
+      label={label}
+      size="small"
+      sx={{
+        color: '#cbd5e1',
+        bgcolor: 'rgba(15,23,42,0.24)',
+        border: `1px solid ${colors.line}`,
+      }}
+    />
+  );
+}
+
+function renderHeroChip(label: string) {
+  return (
+    <Chip
+      key={label}
+      label={label}
+      variant="outlined"
+      sx={{
+        color: '#e2e8f0',
+        borderColor: 'rgba(226,232,240,0.22)',
+        bgcolor: colors.chipBg,
+      }}
+    />
+  );
+}
+
+function DemoSection({ demo }: { demo: DemoDefinition }) {
+  return (
+    <Box sx={{ py: { xs: 4, md: 5 } }}>
+      <Stack direction={{ xs: 'column', xl: 'row' }} spacing={{ xs: 3.5, xl: 5 }} alignItems="flex-start">
+        <Stack spacing={2.5} sx={{ width: '100%', maxWidth: { xl: 360 } }}>
+          <Box>
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.25 }}>
+              <Box sx={{ color: colors.accent, display: 'flex', alignItems: 'center' }}>{demo.icon}</Box>
+              <Typography variant="h4" component="h3" sx={{ color: colors.pageText }}>
+                {demo.title}
+              </Typography>
+            </Stack>
+            <Typography variant="body1" sx={{ color: colors.bodyText }}>
+              {demo.summary}
+            </Typography>
+          </Box>
+
+          <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
+            {demo.tech.map(renderTechChip)}
+          </Stack>
+
+          <Stack spacing={0.9}>
+            {demo.whyBuilt.map((line) => (
+              <Typography key={line} variant="body2" sx={{ color: colors.mutedText }}>
+                {line}
+              </Typography>
+            ))}
+          </Stack>
+
+          <Button
+            href={demo.githubUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="outlined"
+            startIcon={<GitHubIcon />}
+            endIcon={<LaunchIcon />}
             sx={{
-              bgcolor: 'rgba(248,250,252,0.14)',
-              color: '#f8fafc',
-              border: '1px solid rgba(248,250,252,0.22)',
+              alignSelf: 'flex-start',
+              color: '#e2e8f0',
+              borderColor: 'rgba(226,232,240,0.22)',
+              '&:hover': {
+                borderColor: colors.pageText,
+                bgcolor: 'rgba(248,250,252,0.06)',
+              },
             }}
-          />
-          <Typography variant="caption" sx={{ color: 'rgba(226,232,240,0.88)' }}>
-            Live demo loads only when device/browser conditions look healthy.
-          </Typography>
+          >
+            View code on GitHub
+          </Button>
         </Stack>
 
-        <Box>
-          <Typography variant="h5" sx={{ color: '#f8fafc', mb: 1 }}>
-            {demo.title}
-          </Typography>
-          <Typography sx={{ color: 'rgba(226,232,240,0.88)', maxWidth: 620 }}>
-            Recruiter-friendly preview for slow devices, denied webcam access, or quick portfolio scans.
+        <Box sx={{ width: '100%', flex: 1 }}>
+          <Box
+            sx={{
+              borderRadius: 4,
+              border: `1px solid ${colors.line}`,
+              background: demoFrameBackground,
+              p: { xs: 1.25, md: 1.75 },
+            }}
+          >
+            <DeferredRender
+              loader={demo.loader}
+              minHeight={demo.minHeight}
+              loadingLabel={demo.loadingLabel}
+            />
+          </Box>
+
+          <Typography
+            variant="caption"
+            sx={{
+              display: 'block',
+              mt: 1.25,
+              color: 'rgba(226,232,240,0.46)',
+              letterSpacing: '0.06em',
+            }}
+          >
+            Live browser demo. Best experienced on desktop with camera permissions enabled when
+            required.
           </Typography>
         </Box>
-      </Box>
+      </Stack>
     </Box>
   );
+}
 
+function MBorba() {
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        background:
-          'radial-gradient(circle at top left, rgba(13,148,136,0.18), transparent 32%), radial-gradient(circle at top right, rgba(249,115,22,0.14), transparent 28%), linear-gradient(180deg, rgba(248,250,252,0.98), rgba(241,245,249,0.98))',
-      }}
-    >
+    <Box sx={{ minHeight: '100vh', background: pageBackground, color: colors.pageText }}>
       <Container component="main" maxWidth="lg" sx={{ pt: { xs: 4, md: 6 }, pb: 8 }}>
-        <Paper
-          elevation={0}
+        <Box
           sx={{
-            p: { xs: 3, md: 5 },
-            borderRadius: 5,
-            border: '1px solid',
-            borderColor: 'divider',
-            background:
-              'linear-gradient(135deg, rgba(255,255,255,0.94), rgba(241,245,249,0.96) 55%, rgba(204,251,241,0.72))',
-            boxShadow: '0 28px 80px rgba(15, 23, 42, 0.08)',
-            mb: 5,
+            position: 'relative',
+            overflow: 'hidden',
+            borderRadius: { xs: 4, md: 6 },
+            border: `1px solid ${colors.line}`,
+            background: surfaceBackground,
+            boxShadow: '0 36px 120px rgba(2, 6, 23, 0.45)',
           }}
         >
-          <Stack spacing={3}>
-            <Box>
-              <Chip
-                label="AI + full-stack engineer"
-                sx={{
-                  mb: 2,
-                  bgcolor: 'rgba(15,118,110,0.12)',
-                  color: 'primary.main',
-                  fontWeight: 700,
-                }}
-              />
-              <Typography variant="h1" component="h1" sx={{ maxWidth: 760 }}>
-                Martin Borba
-              </Typography>
-              <Typography
-                variant="h5"
-                component="p"
-                sx={{ maxWidth: 860, color: 'text.secondary', mb: 2 }}
+          <Box
+            sx={{
+              position: 'absolute',
+              inset: 0,
+              background: surfaceOverlay,
+              pointerEvents: 'none',
+            }}
+          />
+
+          <Stack spacing={{ xs: 6, md: 8 }} sx={{ position: 'relative', zIndex: 1, p: { xs: 3, md: 5 } }}>
+            <Stack spacing={4}>
+              <Stack
+                direction={{ xs: 'column', lg: 'row' }}
+                spacing={{ xs: 4, lg: 6 }}
+                justifyContent="space-between"
+                alignItems="flex-start"
               >
-                Computer engineer building recruiter-friendly web products, ML demos, and systems
-                that make technical depth easy to scan quickly.
-              </Typography>
-              <Typography variant="body1" sx={{ maxWidth: 820, color: 'text.secondary' }}>
-                Based in Montevideo, Uruguay. I work across product UX, front-end delivery, and
-                applied AI prototyping, with a particular pull toward backend architecture and
-                system design.
-              </Typography>
-            </Box>
-
-            <Stack direction="row" spacing={1.25} useFlexGap flexWrap="wrap">
-              {recruiterStack.map((item) => (
-                <Chip key={item} label={item} variant="outlined" />
-              ))}
-            </Stack>
-
-            <Stack
-              direction={{ xs: 'column', md: 'row' }}
-              spacing={1.5}
-              divider={<Divider flexItem orientation="vertical" sx={{ display: { xs: 'none', md: 'block' } }} />}
-            >
-              {recruiterSignals.map((signal) => (
-                <Typography key={signal} variant="body2" sx={{ color: 'text.secondary' }}>
-                  {signal}
-                </Typography>
-              ))}
-            </Stack>
-
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} useFlexGap flexWrap="wrap">
-              <Button
-                onClick={onDownloadCV}
-                variant="contained"
-                color="primary"
-                startIcon={<DownloadIcon />}
-                endIcon={<ContactPageIcon />}
-              >
-                Download resume
-              </Button>
-              <Button
-                onClick={onDownloadScholarship}
-                variant="outlined"
-                color="primary"
-                startIcon={<DownloadIcon />}
-                endIcon={<DescriptionIcon />}
-              >
-                Download degree report
-              </Button>
-              <Button
-                href="https://github.com/M-Borba/ReactCV"
-                target="_blank"
-                rel="noopener noreferrer"
-                variant="text"
-                startIcon={<GitHubIcon />}
-                endIcon={<LaunchIcon />}
-              >
-                View portfolio code
-              </Button>
-            </Stack>
-          </Stack>
-        </Paper>
-
-        <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 3 }}>
-          <ScienceIcon color="primary" />
-          <Typography variant="h2" component="h2">
-            Interactive demos
-          </Typography>
-        </Stack>
-
-        <Stack spacing={4}>
-          {demos.map((demo) => (
-            <Paper
-              key={demo.title}
-              elevation={0}
-              sx={{
-                p: { xs: 2.5, md: 3.5 },
-                borderRadius: 4,
-                border: '1px solid',
-                borderColor: 'divider',
-                backgroundColor: 'background.paper',
-                boxShadow: '0 22px 48px rgba(15, 23, 42, 0.07)',
-              }}
-            >
-              <Stack spacing={2.5}>
-                <Stack
-                  direction={{ xs: 'column', lg: 'row' }}
-                  spacing={2}
-                  justifyContent="space-between"
-                  alignItems={{ xs: 'flex-start', lg: 'center' }}
-                >
-                  <Box>
-                    <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
-                      {demo.icon}
-                      <Typography variant="h4" component="h3">
-                        {demo.title}
-                      </Typography>
-                    </Stack>
-                    <Typography variant="body1" sx={{ color: 'text.secondary', maxWidth: 900 }}>
-                      {demo.summary}
-                    </Typography>
-                  </Box>
-
-                  <Button
-                    href={demo.githubUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    variant="outlined"
-                    startIcon={<GitHubIcon />}
-                    endIcon={<LaunchIcon />}
+                <Box sx={{ maxWidth: 760 }}>
+                  <Chip
+                    label="AI + full-stack engineer"
+                    sx={{
+                      mb: 2,
+                      bgcolor: 'rgba(248,250,252,0.1)',
+                      color: colors.pageText,
+                      border: '1px solid rgba(248,250,252,0.16)',
+                      fontWeight: 700,
+                    }}
+                  />
+                  <Typography
+                    variant="h1"
+                    component="h1"
+                    sx={{
+                      maxWidth: 760,
+                      color: colors.pageText,
+                      textShadow: '0 10px 24px rgba(15,23,42,0.3)',
+                      letterSpacing: '-0.04em',
+                    }}
                   >
-                    View code on GitHub
-                  </Button>
-                </Stack>
-
-                <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
-                  {demo.tech.map((techItem) => (
-                    <Chip key={techItem} label={techItem} size="small" />
-                  ))}
-                </Stack>
-
-                <Box>
-                  {demo.whyBuilt.map((line) => (
-                    <Typography key={line} variant="body2" sx={{ color: 'text.secondary', mb: 0.75 }}>
-                      {line}
-                    </Typography>
-                  ))}
+                    Martin Borba
+                  </Typography>
+                  <Typography
+                    variant="h5"
+                    component="p"
+                    sx={{ maxWidth: 760, color: 'rgba(226,232,240,0.94)', mb: 2 }}
+                  >
+                    Computer engineer focused on ML backend systems, inference
+                    pipelines, and APIs built for real-world products.
+                  </Typography>
+                  <Typography variant="body1" sx={{ maxWidth: 700, color: 'rgba(226,232,240,0.78)' }}>
+                    I work across backend architecture, model integration, and applied AI delivery,
+                    with a strong interest in scalable systems, data flow, and reliable product infrastructure.
+                  </Typography>
                 </Box>
 
-                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                  Preview GIF available as a lightweight fallback if the live model takes time to load
-                  or webcam permissions are blocked.
-                </Typography>
-
-                {renderPreview(demo)}
-
-                <DeferredRender
-                  loader={demo.loader}
-                  minHeight={demo.minHeight}
-                  loadingLabel={demo.loadingLabel}
-                />
+                <Stack spacing={1.25} sx={{ minWidth: { lg: 260 }, pt: { lg: 2 } }}>
+                  <Typography variant="overline" sx={{ color: colors.accent, letterSpacing: '0.18em' }}>
+                    Profile
+                  </Typography>
+                  {profileFacts.map((fact) => (
+                    <Box key={fact} sx={{ py: 1.25, borderTop: '1px solid rgba(148,163,184,0.18)' }}>
+                      <Typography variant="body2" sx={{ color: 'rgba(226,232,240,0.76)' }}>
+                        {fact}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Stack>
               </Stack>
-            </Paper>
-          ))}
-        </Stack>
 
-        <Paper
-          elevation={0}
-          sx={{
-            mt: 5,
-            p: 3,
-            borderRadius: 4,
-            border: '1px solid',
-            borderColor: 'divider',
-            backgroundColor: 'background.paper',
-          }}
-        >
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            For more context, the live demos and this recruiter-focused portfolio shell are all in
-            the same repo:{' '}
-            <Link
-              href="https://github.com/M-Borba/ReactCV"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              github.com/M-Borba/ReactCV
-            </Link>
-            .
-          </Typography>
-        </Paper>
+              <Stack direction="row" spacing={1.25} useFlexGap flexWrap="wrap">
+                {profileStack.map(renderHeroChip)}
+              </Stack>
+
+              <Stack
+                direction={{ xs: 'column', md: 'row' }}
+                spacing={1.5}
+                divider={
+                  <Divider
+                    flexItem
+                    orientation="vertical"
+                    sx={{ display: { xs: 'none', md: 'block' }, borderColor: 'rgba(226,232,240,0.16)' }}
+                  />
+                }
+              >
+                {profileSignals.map((signal) => (
+                  <Typography key={signal} variant="body2" sx={{ color: 'rgba(226,232,240,0.78)' }}>
+                    {signal}
+                  </Typography>
+                ))}
+              </Stack>
+
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} useFlexGap flexWrap="wrap">
+                <Button
+                  onClick={() => downloadFile('MBorba_CV.pdf', '/Mart%C3%ADn%20Borba%20L%C3%B3pez%20CV.pdf')}
+                  variant="contained"
+                  startIcon={<DownloadIcon />}
+                  endIcon={<ContactPageIcon />}
+                  sx={{
+                    bgcolor: '#f8fafc',
+                    color: '#0f172a',
+                    '&:hover': { bgcolor: '#e2e8f0' },
+                  }}
+                >
+                  Download resume
+                </Button>
+                <Button
+                  onClick={() => downloadFile('MBorba_scholarship.pdf', '/ReporteEscolaridadEgreso.pdf')}
+                  variant="outlined"
+                  startIcon={<DownloadIcon />}
+                  endIcon={<DescriptionIcon />}
+                  sx={{
+                    color: colors.pageText,
+                    borderColor: 'rgba(248,250,252,0.34)',
+                    '&:hover': {
+                      borderColor: colors.pageText,
+                      bgcolor: 'rgba(248,250,252,0.08)',
+                    },
+                  }}
+                >
+                  Download degree report
+                </Button>
+                <Button
+                  href="https://github.com/M-Borba/ReactCV"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  variant="text"
+                  startIcon={<GitHubIcon />}
+                  endIcon={<LaunchIcon />}
+                  sx={{
+                    color: '#cbd5e1',
+                    '&:hover': { color: colors.pageText, bgcolor: 'rgba(248,250,252,0.08)' },
+                  }}
+                >
+                  View portfolio code
+                </Button>
+              </Stack>
+            </Stack>
+
+            <Stack spacing={3}>
+              <Stack
+                direction={{ xs: 'column', md: 'row' }}
+                spacing={2}
+                justifyContent="space-between"
+                alignItems={{ xs: 'flex-start', md: 'flex-end' }}
+              >
+                <Box>
+                  <Stack direction="row" spacing={1.25} alignItems="center">
+                    <ScienceIcon sx={{ color: colors.accent }} />
+                    <Typography variant="h2" component="h2" sx={{ color: colors.pageText, marginBottom: '0 !important' }}>
+                      Interactive demos
+                    </Typography>
+                  </Stack>
+                  <Typography variant="body1" sx={{ mt: 1.25, maxWidth: 760, color: colors.mutedText }}>
+                    A small set of live browser experiments that show how I think about product,
+                    interaction, and machine learning in the same build.
+                  </Typography>
+                </Box>
+
+                <Typography variant="overline" sx={{ color: 'rgba(226,232,240,0.5)', letterSpacing: '0.18em' }}>
+                  Selected work
+                </Typography>
+              </Stack>
+            </Stack>
+
+            <Stack divider={<Divider sx={{ borderColor: 'rgba(148,163,184,0.14)' }} />}>
+              {demos.map((demo) => (
+                <DemoSection key={demo.title} demo={demo} />
+              ))}
+            </Stack>
+
+            <Box sx={{ pt: 1, borderTop: '1px solid rgba(148,163,184,0.14)' }}>
+              <Typography variant="body2" sx={{ color: 'rgba(226,232,240,0.68)' }}>
+                For more context, the live demos and this portfolio shell are all
+                in the same repo:{' '}
+                <Link
+                  href="https://github.com/M-Borba/ReactCV"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{ color: colors.accent }}
+                >
+                  github.com/M-Borba/ReactCV
+                </Link>
+                .
+              </Typography>
+            </Box>
+          </Stack>
+        </Box>
       </Container>
     </Box>
   );

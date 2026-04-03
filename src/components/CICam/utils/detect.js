@@ -50,7 +50,7 @@ export const detect = async (
   source,
   model,
   canvasRef,
-  conf_threshold,
+  getConfidenceThreshold,
   callback = () => {},
 ) => {
   const [modelWidth, modelHeight] = model.inputShape.slice(1, 3); // get model width and height
@@ -101,7 +101,7 @@ export const detect = async (
     scores_data,
     classes_data,
     [xRatio, yRatio],
-    conf_threshold,
+    getConfidenceThreshold(),
   ); // render boxes
   tf.dispose([res, transRes, boxes, scores, classes, nms]); // clear memory
 
@@ -116,21 +116,42 @@ export const detect = async (
  * @param {tf.GraphModel} model loaded YOLOv8 tensorflow.js model
  * @param {HTMLCanvasElement} canvasRef canvas reference
  */
-export const detectVideo = (vidSource, model, canvasRef, conf_threshold) => {
+export const detectVideo = (
+  vidSource,
+  model,
+  canvasRef,
+  getConfidenceThreshold = () => 0.5,
+) => {
+  let isCancelled = false;
+  let frameId = null;
+
   /**
    * Function to detect every frame from video
    */
   const detectFrame = async () => {
+    if (isCancelled) {
+      return;
+    }
+
     if (vidSource.videoWidth === 0 && vidSource.srcObject === null) {
       const ctx = canvasRef.getContext("2d");
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // clean canvas
       return; // handle if source is closed
     }
 
-    detect(vidSource, model, canvasRef, conf_threshold, () => {
-      requestAnimationFrame(detectFrame); // get another frame
+    await detect(vidSource, model, canvasRef, getConfidenceThreshold, () => {
+      if (!isCancelled) {
+        frameId = requestAnimationFrame(detectFrame); // get another frame
+      }
     });
   };
 
   detectFrame(); // initialize to detect every frame
+
+  return () => {
+    isCancelled = true;
+    if (frameId !== null) {
+      cancelAnimationFrame(frameId);
+    }
+  };
 };

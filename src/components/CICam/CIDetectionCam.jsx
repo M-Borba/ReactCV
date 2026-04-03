@@ -36,9 +36,15 @@ const CIDetectionCam = () => {
   // references
   const cameraRef = useRef(null);
   const canvasRef = useRef(null);
+  const thresholdRef = useRef(conf_threshold);
+  const stopDetectionRef = useRef(null);
 
   // model configs
   const modelName = "ci_detection";
+
+  useEffect(() => {
+    thresholdRef.current = conf_threshold;
+  }, [conf_threshold]);
 
   useEffect(() => {
     let isMounted = true;
@@ -92,17 +98,37 @@ const CIDetectionCam = () => {
 
     return () => {
       isMounted = false;
+      if (stopDetectionRef.current) {
+        stopDetectionRef.current();
+        stopDetectionRef.current = null;
+      }
       webcam.close(cameraRef.current);
     };
   }, []);
 
-  // Use useEffect to update detection when threshold changes
   useEffect(() => {
-    if (model.net) {
-      // Restart detection process with updated threshold
-      detectVideo(cameraRef.current, model, canvasRef.current, conf_threshold);
+    if (!model.net || !cameraRef.current || !canvasRef.current || cameraError) {
+      return;
     }
-  }, [conf_threshold, model]); // dependencies include conf_threshold and model
+
+    if (stopDetectionRef.current) {
+      stopDetectionRef.current();
+    }
+
+    stopDetectionRef.current = detectVideo(
+      cameraRef.current,
+      model,
+      canvasRef.current,
+      () => thresholdRef.current,
+    );
+
+    return () => {
+      if (stopDetectionRef.current) {
+        stopDetectionRef.current();
+        stopDetectionRef.current = null;
+      }
+    };
+  }, [model, cameraError]);
 
   return (
     <div className="CIDetectionCam">
@@ -135,7 +161,7 @@ const CIDetectionCam = () => {
           <div className="slider">
             <Slider
               value={conf_threshold}
-              onChange={(event, newValue) => setThreshold(newValue)}
+              onChange={(event, newValue) => setThreshold(Array.isArray(newValue) ? newValue[0] : newValue)}
               aria-labelledby="confidence-threshold-slider"
               valueLabelDisplay="auto"
               step={0.01}
@@ -143,7 +169,7 @@ const CIDetectionCam = () => {
               min={0}
               max={1}
             />
-            <p>Confidence Threshold: {conf_threshold}</p>
+            <p>Confidence Threshold: {conf_threshold.toFixed(2)}</p>
           </div>
         )}
       </div>
