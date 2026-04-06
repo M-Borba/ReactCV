@@ -7,6 +7,7 @@ import Slider from "@mui/material/Slider";
 import { Webcam } from "./utils/webcam";
 import "./app.css";
 
+<<<<<<< Updated upstream
 const getWebcamErrorMessage = (error) => {
   if (error?.name === "NotAllowedError" || error?.name === "SecurityError") {
     return "Camera access was denied. Please allow webcam permissions in your browser to use this demo.";
@@ -21,12 +22,105 @@ const getWebcamErrorMessage = (error) => {
   }
 
   return "The webcam could not be started. Please check your browser permissions and device settings.";
+=======
+const OCR_COOLDOWN_MS = 1200;
+const TESSERACT_CDN_URL =
+  "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
+
+const formatIdentityDigits = (digits = "") => {
+  if (digits.length < 7) return "";
+  const body = digits.slice(0, -1);
+  const checkDigit = digits.slice(-1);
+  return `${body}-${checkDigit}`;
+};
+
+const parseIdentityNumber = (rawText = "") => {
+  console.log("rawText", rawText)
+  const identityMatch = rawText.match(
+    /(?:N[°ºo]?\s*(?:DE\s*)?IDENTIDAD|NUM(?:ERO)?\s*DE\s*IDENTIDAD|CI)\s*[:\-]?\s*([0-9.\- ]{6,})/i,
+  );
+
+  const pickDigits = (value = "") => (value.match(/\d/g) || []).join("");
+  const directDigits = pickDigits(identityMatch?.[1] || "");
+  if (directDigits.length >= 7) return formatIdentityDigits(directDigits);
+
+  const candidates = rawText.match(/\d[\d.\- ]{5,}\d/g) || [];
+  const best = candidates
+    .map((candidate) => pickDigits(candidate))
+    .filter((digits) => digits.length >= 7)
+    .sort((a, b) => b.length - a.length)[0];
+
+  return formatIdentityDigits(best || "");
+};
+
+const loadTesseract = async () => {
+  if (window.Tesseract) return window.Tesseract;
+
+  const existingScript = document.querySelector(`script[src="${TESSERACT_CDN_URL}"]`);
+  if (!existingScript) {
+    const script = document.createElement("script");
+    script.src = TESSERACT_CDN_URL;
+    script.async = true;
+    document.head.appendChild(script);
+  }
+
+  await new Promise((resolve, reject) => {
+    const checkLoaded = () => {
+      if (window.Tesseract) resolve();
+      else reject(new Error("Unable to load OCR engine"));
+    };
+
+    const script = document.querySelector(`script[src="${TESSERACT_CDN_URL}"]`);
+    if (!script) {
+      reject(new Error("OCR script missing"));
+      return;
+    }
+
+    if (window.Tesseract) {
+      resolve();
+      return;
+    }
+
+    script.addEventListener("load", checkLoaded, { once: true });
+    script.addEventListener(
+      "error",
+      () => reject(new Error("Failed to load OCR script")),
+      { once: true },
+    );
+  });
+
+  return window.Tesseract;
+};
+
+const getCropCanvas = (source, bbox, targetCanvas) => {
+  if (!source || !bbox || !targetCanvas) return null;
+  const sourceWidth = source.videoWidth || source.naturalWidth || source.width;
+  const sourceHeight = source.videoHeight || source.naturalHeight || source.height;
+  if (!sourceWidth || !sourceHeight) return null;
+
+  const x = Math.max(0, Math.floor(bbox.x));
+  const y = Math.max(0, Math.floor(bbox.y));
+  const width = Math.min(sourceWidth - x, Math.floor(bbox.width));
+  const height = Math.min(sourceHeight - y, Math.floor(bbox.height));
+  if (width < 10 || height < 10) return null;
+
+  targetCanvas.width = width;
+  targetCanvas.height = height;
+  const ctx = targetCanvas.getContext("2d", { willReadFrequently: true });
+  ctx.drawImage(source, x, y, width, height, 0, 0, width, height);
+  return targetCanvas;
+>>>>>>> Stashed changes
 };
 
 const CIDetectionCam = () => {
   const [conf_threshold, setThreshold] = useState(0.5); // confidence threshold state
   const [loading, setLoading] = useState(true); // loading state
+<<<<<<< Updated upstream
   const [cameraError, setCameraError] = useState("");
+=======
+  const [ocrStatus, setOcrStatus] = useState("Esperando frente de CI...");
+  const [identityNumber, setIdentityNumber] = useState("");
+>>>>>>> Stashed changes
   const [model, setModel] = useState({
     net: null,
     inputShape: [1, 0, 0, 3],
@@ -36,8 +130,14 @@ const CIDetectionCam = () => {
   // references
   const cameraRef = useRef(null);
   const canvasRef = useRef(null);
+<<<<<<< Updated upstream
   const thresholdRef = useRef(conf_threshold);
   const stopDetectionRef = useRef(null);
+=======
+  const cropCanvasRef = useRef(document.createElement("canvas"));
+  const isOcrBusyRef = useRef(false);
+  const lastOcrAtRef = useRef(0);
+>>>>>>> Stashed changes
 
   // model configs
   const modelName = "ci_detection";
@@ -107,8 +207,73 @@ const CIDetectionCam = () => {
   }, []);
 
   useEffect(() => {
+<<<<<<< Updated upstream
     if (!model.net || !cameraRef.current || !canvasRef.current || cameraError) {
       return;
+=======
+    if (model.net) {
+      // Restart detection process with updated threshold
+      const stopDetect = detectVideo(
+        cameraRef.current,
+        model,
+        canvasRef.current,
+        conf_threshold,
+        async (bestFrontDetection) => {
+          if (!bestFrontDetection) {
+            if (!isOcrBusyRef.current) {
+              setOcrStatus("Esperando frente de CI...");
+            }
+            return;
+          }
+
+          const now = Date.now();
+          if (
+            isOcrBusyRef.current ||
+            now - lastOcrAtRef.current < OCR_COOLDOWN_MS
+          ) {
+            return;
+          }
+
+          isOcrBusyRef.current = true;
+          lastOcrAtRef.current = now;
+          setOcrStatus("Leyendo N identidad...");
+
+          try {
+            const source = cameraRef.current;
+            const cropCanvas = getCropCanvas(
+              source,
+              bestFrontDetection.bbox,
+              cropCanvasRef.current,
+            );
+            if (!cropCanvas) {
+              setOcrStatus("No se pudo recortar la CI");
+              return;
+            }
+
+            const Tesseract = await loadTesseract();
+            const { data } = await Tesseract.recognize(cropCanvas, "spa", {
+              tessedit_pageseg_mode: "6",
+            });
+
+            const identityNumber = parseIdentityNumber(data?.text || "");
+
+            if (!identityNumber) {
+              setOcrStatus("N identidad no encontrado");
+              return;
+            }
+
+            setIdentityNumber(identityNumber);
+            setOcrStatus("OCR completo");
+          } catch (error) {
+            setOcrStatus("OCR falló");
+          } finally {
+            isOcrBusyRef.current = false;
+          }
+        },
+      );
+
+      return () => stopDetect?.();
+>>>>>>> Stashed changes
     }
 
     if (stopDetectionRef.current) {
@@ -157,6 +322,7 @@ const CIDetectionCam = () => {
           ref={canvasRef}
         />
 
+<<<<<<< Updated upstream
         {!cameraError && (
           <div className="slider">
             <Slider
@@ -172,6 +338,26 @@ const CIDetectionCam = () => {
             <p>Confidence Threshold: {conf_threshold.toFixed(2)}</p>
           </div>
         )}
+=======
+        <div className="slider">
+          <Slider
+            value={conf_threshold}
+            onChange={(event, newValue) => setThreshold(newValue)}
+            aria-labelledby="confidence-threshold-slider"
+            valueLabelDisplay="auto"
+            step={0.01}
+            marks
+            min={0}
+            max={1}
+          />
+          <p>Confidence Threshold: {conf_threshold}</p>
+        </div>
+
+        <div className="ocr-panel">
+          <p className="ocr-status">Estado OCR: {ocrStatus}</p>
+          <p>N Identidad: {identityNumber || "-"}</p>
+        </div>
+>>>>>>> Stashed changes
       </div>
     </div>
   );

@@ -100,16 +100,20 @@ export default function Chat() {
     const loadModel = async () => {
       try {
         setModelSetup('loading');
-        const loadedModel = await qna.load();
+        const modelUrl = new URL(
+          `${import.meta.env.BASE_URL}qna_model/model.json`,
+          window.location.origin,
+        ).toString();
+        console.log("modelUrl",modelUrl)
+        const loadedModel = await qna.load({ modelUrl, fromTFHub: false });
         console.log("loadedChatModel",loadedModel)
         bertModel.current = loadedModel;
         setModelSetup('done');
         return true;
       } catch (error) {
-        console.log('Error loading QnA model:', error);
+        console.log('Error loading local QnA model bundle:', error);
         setModelSetup('error');
-
-        return false
+        return false;
       }
     };
 
@@ -122,6 +126,14 @@ export default function Chat() {
   }, []);
 
   const onSubmit = (text: string)=> {
+    if (!bertModel.current || modelSetup !== "done") {
+      setMessages(prevMessages => [
+        ...prevMessages,
+        { type: "bert", text: "El modelo aún no está listo." },
+      ]);
+      return;
+    }
+
     setMessages(prevMessages => [...prevMessages, { type: "user", text }]);
       bertModel?.current.findAnswers(text, passage)
       .then((answers: any) => {
@@ -139,7 +151,7 @@ export default function Chat() {
       <Paper className={classes.paper}>
         <Paper id="style-1" className={classes.messagesBody}>
           {modelSetup=='loading' && <CircularProgress />}
-          {modelSetup === 'error' && (<><ErrorIcon /> Could not load model :(</>)}
+          {modelSetup === 'error' && (<><ErrorIcon /> Could not load local model. Run `npm run download-qna-model`.</>)}
           {modelSetup==='done' && messages.map((msg,index)=> 
             msg.type=='bert' ? 
             <BertMessage message={msg.text} key={(index+msg.text)}/> : 

@@ -1,0 +1,65 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 2628 >>
+stream
+q
+BT /F2 18 Tf 54 748 Td (ReactCV App Summary) Tj ET
+BT /F1 8 Tf 54 732 Td (Evidence source: src/, public/, package.json, scripts/download-qna-model.js) Tj ET
+BT /F2 12 Tf 54 708 Td (What It Is) Tj ET
+BT /F1 10 Tf 54 696 Td (A React + TypeScript + Vite portfolio web app for Martin Borba with interactive ML demos.) Tj ET
+BT /F1 10 Tf 54 684 Td (Built with Material UI, plus downloadable CV/scholarship PDFs and browser-side AI features.) Tj ET
+BT /F2 12 Tf 54 668 Td (Who It's For) Tj ET
+BT /F1 10 Tf 54 656 Td (Primary persona: recruiters, hiring managers, and technical peers evaluating profile and skills.) Tj ET
+BT /F2 12 Tf 54 640 Td (What It Does \(Key Features\)) Tj ET
+BT /F1 10 Tf 64 628 Td (- Personal landing page with profile content and light/dark theme toggle.) Tj ET
+BT /F1 10 Tf 64 616 Td (- One-click download buttons for resume and scholarship PDFs from /public.) Tj ET
+BT /F1 10 Tf 64 604 Td (- Webcam face-mesh game with mouth-open detection and score tracking.) Tj ET
+BT /F1 10 Tf 64 592 Td (- TensorFlow QnA assistant answering questions from a configurable passage.) Tj ET
+BT /F1 10 Tf 64 580 Td (- Sample quick questions plus free-text chat input UI.) Tj ET
+BT /F1 10 Tf 64 568 Td (- Webcam YOLOv8 object detection with confidence-threshold slider and box overlay.) Tj ET
+BT /F2 12 Tf 54 552 Td (How It Works \(Repo-Based Architecture\)) Tj ET
+BT /F1 10 Tf 64 540 Td (- Entry flow: src/main.tsx mounts App; App.tsx wires MUI theming and renders MBorba + footer.) Tj ET
+BT /F1 10 Tf 64 528 Td (- MBorba composes feature components: GameCam, BertChat/Chat, and CICam/CIDetectionCam.) Tj ET
+BT /F1 10 Tf 64 516 Td (- Static model/assets served from /public: face_mesh, ci_detection_modelv3, qna_model.) Tj ET
+BT /F1 10 Tf 64 504 Td (- Chat path: Chat.tsx loads @tensorflow-models/qna \(local model first, CDN fallback\).) Tj ET
+BT /F1 10 Tf 64 492 Td (- Face game path: GameCam.tsx gets webcam stream, estimates landmarks, updates game state.) Tj ET
+BT /F1 10 Tf 64 480 Td (- CV detection path: CIDetectionCam.jsx loads GraphModel; detect.js runs per-frame inference.) Tj ET
+BT /F1 10 Tf 64 468 Td (- Backend/API services: Not found in repo \(no server-side app code detected\).) Tj ET
+BT /F2 12 Tf 54 452 Td (How To Run \(Minimal\)) Tj ET
+BT /F1 10 Tf 64 440 Td (- npm install) Tj ET
+BT /F1 10 Tf 64 428 Td (- Optional if qna model is missing: npm run download-qna-model) Tj ET
+BT /F1 10 Tf 64 416 Td (- npm run start) Tj ET
+BT /F1 10 Tf 64 404 Td (- Open the local Vite URL and allow webcam access for the demos.) Tj ET
+BT /F1 10 Tf 64 392 Td (- Node/npm version requirement: Not found in repo.) Tj ET
+Q
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000251 00000 n 
+0000002930 00000 n 
+0000003000 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+3075
+%%EOF
