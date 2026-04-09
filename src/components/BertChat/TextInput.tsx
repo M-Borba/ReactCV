@@ -9,7 +9,8 @@ const useStyles = makeStyles(() => ({
     display: "flex",
     justifyContent: "center",
     width: "95%",
-    margin: 'auto'
+    margin: 'auto',
+    paddingBottom: "0.5rem",
   },
   wrapText: {
     width: "100%"
@@ -36,9 +37,11 @@ export const TextInput = ({ handleSubmit }: any) => {
           id="standard-text"
           label="Chat with MBert"
           className={classes.wrapText}
+          multiline
           onChange={(e: any) => { setText(e.target.value) }}
           value={text}
           sx={{margin:"1%"}}
+          minRows={2}
         />
         <Button 
          variant="contained"

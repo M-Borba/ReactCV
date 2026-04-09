@@ -112,9 +112,11 @@ export const detect = async (
   const sourceHeight = source.videoHeight || source.naturalHeight || source.height;
   let bestFrontDetection = null;
 
+  const confidenceThreshold = getConfidenceThreshold();
+
   for (let i = 0; i < scores_data.length; ++i) {
     const score = scores_data[i];
-    if (score < conf_threshold) continue;
+    if (score < confidenceThreshold) continue;
 
     const label = labels[classes_data[i]];
     if (!FRONT_LABELS.has(label)) continue;
@@ -156,29 +158,19 @@ export const detectVideo = (
   vidSource,
   model,
   canvasRef,
-<<<<<<< Updated upstream
   getConfidenceThreshold = () => 0.5,
+  onDetection = () => {},
 ) => {
   let isCancelled = false;
   let frameId = null;
-=======
-  conf_threshold,
-  onDetection = () => {},
-) => {
-  let isActive = true;
->>>>>>> Stashed changes
 
   /**
    * Function to detect every frame from video
    */
   const detectFrame = async () => {
-<<<<<<< Updated upstream
     if (isCancelled) {
       return;
     }
-=======
-    if (!isActive) return;
->>>>>>> Stashed changes
 
     if (vidSource.videoWidth === 0 && vidSource.srcObject === null) {
       const ctx = canvasRef.getContext("2d");
@@ -186,13 +178,6 @@ export const detectVideo = (
       return; // handle if source is closed
     }
 
-<<<<<<< Updated upstream
-    await detect(vidSource, model, canvasRef, getConfidenceThreshold, () => {
-      if (!isCancelled) {
-        frameId = requestAnimationFrame(detectFrame); // get another frame
-      }
-    });
-=======
     if (
       canvasRef.width !== vidSource.videoWidth ||
       canvasRef.height !== vidSource.videoHeight
@@ -201,29 +186,26 @@ export const detectVideo = (
       canvasRef.height = vidSource.videoHeight;
     }
 
-    detect(
+    await detect(
       vidSource,
       model,
       canvasRef,
-      conf_threshold,
+      getConfidenceThreshold,
       () => {
-        requestAnimationFrame(detectFrame); // get another frame
+        if (!isCancelled) {
+          frameId = requestAnimationFrame(detectFrame); // get another frame
+        }
       },
       onDetection,
     );
->>>>>>> Stashed changes
   };
 
   detectFrame(); // initialize to detect every frame
 
   return () => {
-<<<<<<< Updated upstream
     isCancelled = true;
     if (frameId !== null) {
       cancelAnimationFrame(frameId);
     }
-=======
-    isActive = false;
->>>>>>> Stashed changes
   };
 };

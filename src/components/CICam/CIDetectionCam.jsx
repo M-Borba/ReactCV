@@ -7,7 +7,6 @@ import Slider from "@mui/material/Slider";
 import { Webcam } from "./utils/webcam";
 import "./app.css";
 
-<<<<<<< Updated upstream
 const getWebcamErrorMessage = (error) => {
   if (error?.name === "NotAllowedError" || error?.name === "SecurityError") {
     return "Camera access was denied. Please allow webcam permissions in your browser to use this demo.";
@@ -22,7 +21,7 @@ const getWebcamErrorMessage = (error) => {
   }
 
   return "The webcam could not be started. Please check your browser permissions and device settings.";
-=======
+}
 const OCR_COOLDOWN_MS = 1200;
 const TESSERACT_CDN_URL =
   "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
@@ -109,18 +108,14 @@ const getCropCanvas = (source, bbox, targetCanvas) => {
   const ctx = targetCanvas.getContext("2d", { willReadFrequently: true });
   ctx.drawImage(source, x, y, width, height, 0, 0, width, height);
   return targetCanvas;
->>>>>>> Stashed changes
 };
 
 const CIDetectionCam = () => {
   const [conf_threshold, setThreshold] = useState(0.5); // confidence threshold state
   const [loading, setLoading] = useState(true); // loading state
-<<<<<<< Updated upstream
   const [cameraError, setCameraError] = useState("");
-=======
   const [ocrStatus, setOcrStatus] = useState("Esperando frente de CI...");
   const [identityNumber, setIdentityNumber] = useState("");
->>>>>>> Stashed changes
   const [model, setModel] = useState({
     net: null,
     inputShape: [1, 0, 0, 3],
@@ -130,14 +125,11 @@ const CIDetectionCam = () => {
   // references
   const cameraRef = useRef(null);
   const canvasRef = useRef(null);
-<<<<<<< Updated upstream
   const thresholdRef = useRef(conf_threshold);
   const stopDetectionRef = useRef(null);
-=======
   const cropCanvasRef = useRef(document.createElement("canvas"));
   const isOcrBusyRef = useRef(false);
   const lastOcrAtRef = useRef(0);
->>>>>>> Stashed changes
 
   // model configs
   const modelName = "ci_detection";
@@ -207,73 +199,8 @@ const CIDetectionCam = () => {
   }, []);
 
   useEffect(() => {
-<<<<<<< Updated upstream
     if (!model.net || !cameraRef.current || !canvasRef.current || cameraError) {
-      return;
-=======
-    if (model.net) {
-      // Restart detection process with updated threshold
-      const stopDetect = detectVideo(
-        cameraRef.current,
-        model,
-        canvasRef.current,
-        conf_threshold,
-        async (bestFrontDetection) => {
-          if (!bestFrontDetection) {
-            if (!isOcrBusyRef.current) {
-              setOcrStatus("Esperando frente de CI...");
-            }
-            return;
-          }
-
-          const now = Date.now();
-          if (
-            isOcrBusyRef.current ||
-            now - lastOcrAtRef.current < OCR_COOLDOWN_MS
-          ) {
-            return;
-          }
-
-          isOcrBusyRef.current = true;
-          lastOcrAtRef.current = now;
-          setOcrStatus("Leyendo N identidad...");
-
-          try {
-            const source = cameraRef.current;
-            const cropCanvas = getCropCanvas(
-              source,
-              bestFrontDetection.bbox,
-              cropCanvasRef.current,
-            );
-            if (!cropCanvas) {
-              setOcrStatus("No se pudo recortar la CI");
-              return;
-            }
-
-            const Tesseract = await loadTesseract();
-            const { data } = await Tesseract.recognize(cropCanvas, "spa", {
-              tessedit_pageseg_mode: "6",
-            });
-
-            const identityNumber = parseIdentityNumber(data?.text || "");
-
-            if (!identityNumber) {
-              setOcrStatus("N identidad no encontrado");
-              return;
-            }
-
-            setIdentityNumber(identityNumber);
-            setOcrStatus("OCR completo");
-          } catch (error) {
-            setOcrStatus("OCR falló");
-          } finally {
-            isOcrBusyRef.current = false;
-          }
-        },
-      );
-
-      return () => stopDetect?.();
->>>>>>> Stashed changes
+      return undefined;
     }
 
     if (stopDetectionRef.current) {
@@ -285,6 +212,58 @@ const CIDetectionCam = () => {
       model,
       canvasRef.current,
       () => thresholdRef.current,
+      async (bestFrontDetection) => {
+        if (!bestFrontDetection) {
+          if (!isOcrBusyRef.current) {
+            setOcrStatus("Esperando frente de CI...");
+          }
+          return;
+        }
+
+        const now = Date.now();
+        if (
+          isOcrBusyRef.current ||
+          now - lastOcrAtRef.current < OCR_COOLDOWN_MS
+        ) {
+          return;
+        }
+
+        isOcrBusyRef.current = true;
+        lastOcrAtRef.current = now;
+        setOcrStatus("Leyendo N identidad...");
+
+        try {
+          const source = cameraRef.current;
+          const cropCanvas = getCropCanvas(
+            source,
+            bestFrontDetection.bbox,
+            cropCanvasRef.current,
+          );
+          if (!cropCanvas) {
+            setOcrStatus("No se pudo recortar la CI");
+            return;
+          }
+
+          const Tesseract = await loadTesseract();
+          const { data } = await Tesseract.recognize(cropCanvas, "spa", {
+            tessedit_pageseg_mode: "6",
+          });
+
+          const identityNumber = parseIdentityNumber(data?.text || "");
+
+          if (!identityNumber) {
+            setOcrStatus("N identidad no encontrado");
+            return;
+          }
+
+          setIdentityNumber(identityNumber);
+          setOcrStatus("OCR completo");
+        } catch (error) {
+          setOcrStatus("OCR falló");
+        } finally {
+          isOcrBusyRef.current = false;
+        }
+      },
     );
 
     return () => {
@@ -322,7 +301,6 @@ const CIDetectionCam = () => {
           ref={canvasRef}
         />
 
-<<<<<<< Updated upstream
         {!cameraError && (
           <div className="slider">
             <Slider
@@ -338,26 +316,11 @@ const CIDetectionCam = () => {
             <p>Confidence Threshold: {conf_threshold.toFixed(2)}</p>
           </div>
         )}
-=======
-        <div className="slider">
-          <Slider
-            value={conf_threshold}
-            onChange={(event, newValue) => setThreshold(newValue)}
-            aria-labelledby="confidence-threshold-slider"
-            valueLabelDisplay="auto"
-            step={0.01}
-            marks
-            min={0}
-            max={1}
-          />
-          <p>Confidence Threshold: {conf_threshold}</p>
-        </div>
 
         <div className="ocr-panel">
           <p className="ocr-status">Estado OCR: {ocrStatus}</p>
           <p>N Identidad: {identityNumber || "-"}</p>
         </div>
->>>>>>> Stashed changes
       </div>
     </div>
   );

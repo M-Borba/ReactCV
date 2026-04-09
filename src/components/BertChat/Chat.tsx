@@ -1,6 +1,5 @@
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Paper from '@mui/material/Paper';
-import Typography from '@mui/material/Typography';
 import { TextInput } from "./TextInput.js";
 import { BertMessage, UserMessage } from "./Message";
 import { Message } from './chatUtils'
@@ -8,8 +7,6 @@ import * as qna from '@tensorflow-models/qna';
 import CircularProgress from '@mui/material/CircularProgress';
 import { makeStyles } from '@mui/styles';
 import ErrorIcon from '@mui/icons-material/Error';
-import MoreInfoButton from "../MoreInfoButton.js";
-import TextField from '@mui/material/TextField';
 import Stack from '@mui/material/Stack';
 import chatBackground from "./../../assets/aiChatBackground.jpeg";
 
@@ -45,49 +42,84 @@ const questionSamples = [
 "What type of lifestyle does Martin has?"
 ]
 
+const sentenceFallback = (question: string) => {
+  const normalizedQuestion = question.toLowerCase();
+  const sentences = initialPassage
+    .split(".")
+    .map((sentence) => sentence.trim())
+    .filter(Boolean);
+
+  const keywordGroups = [
+    ["who", "martin"],
+    ["old", "born", "age"],
+    ["from", "live", "montevideo", "uruguay"],
+    ["like", "likes", "activities", "sports"],
+    ["artificial", "intelligence", "machine", "learning", "thesis"],
+  ];
+
+  const matchedKeywords = keywordGroups.find((group) =>
+    group.some((keyword) => normalizedQuestion.includes(keyword)),
+  );
+
+  if (!matchedKeywords) {
+    return sentences[0];
+  }
+
+  const matchedSentence = sentences.find((sentence) =>
+    matchedKeywords.some((keyword) => sentence.toLowerCase().includes(keyword)),
+  );
+
+  return matchedSentence || sentences[0];
+};
+
 const useStyles = makeStyles(() => ({
     paper: {
-      width: "80%",
-      height: "80%",
-      maxWidth: "500px",
-      maxHeight: "700px",
+      width: "100%",
+      minHeight: "44rem",
+      maxWidth: "none",
       display: "flex",
-      alignItems: "center",
+      alignItems: "stretch",
       flexDirection: "column",
       position: "relative",
-      background:"lightgrey"
-
-    },
-    paper2: {
-      width: "80%",
-      maxWidth: "500px",
-      display: "flex",
-      alignItems: "center",
-      flexDirection: "column",
-      position: "relative"
-
+      background:"rgba(226, 232, 240, 0.94)",
+      borderRadius: "18px",
     },
     container: {
-      "overflow-y": "hidden",
-      justifyContent:"space-around",
-      alignItems:"flex-start",
-      gap:"10%",
+      overflowY: "hidden",
+      justifyContent:"flex-start",
+      alignItems:"stretch",
+      flexDirection: "column",
+      gap:"1rem",
       width: "100%",
-      height: "90vh",
+      minHeight: "56rem",
       display: "flex",
       background:"grey",
-      padding:"2%",
+      padding:"1rem",
+      boxSizing: "border-box",
       backgroundImage: `url(${chatBackground})`,
       backgroundSize: "cover",
-      borderRadius:"10px",
+      backgroundPosition: "center",
+      borderRadius:"18px",
     },
     messagesBody: {
-      width: "calc( 100% - 20px )",
-      margin: 10,
-      overflowY: "scroll",
-      height: "calc( 100% - 80px )",
-      background:"darkgrey"
-    }
+      width: "calc(100% - 2rem)",
+      margin: "1rem",
+      overflowY: "auto",
+      minHeight: "34rem",
+      flex: 1,
+      background:"rgba(15, 23, 42, 0.78)",
+      borderRadius: "14px",
+      padding: "0.75rem 0",
+      boxSizing: "border-box",
+    },
+    helperText: {
+      color: "#e2e8f0",
+      fontSize: "0.95rem",
+      lineHeight: 1.5,
+      background: "rgba(15, 23, 42, 0.62)",
+      borderRadius: "14px",
+      padding: "0.9rem 1rem",
+    },
   }));
 
 export default function Chat() {
@@ -95,7 +127,6 @@ export default function Chat() {
   const [messages,setMessages] = useState<Message[]>([{type:"bert",text:"Hello, ask me anything you want to know about Martín"}])
   const bertModel = useRef<any>(null);
   const [modelSetup, setModelSetup] = useState<string>('notStarted');
-  const [passage,setPassage]=useState<string>(initialPassage);
     useEffect(() => {
     const loadModel = async () => {
       try {
@@ -112,7 +143,7 @@ export default function Chat() {
         return true;
       } catch (error) {
         console.log('Error loading local QnA model bundle:', error);
-        setModelSetup('error');
+        setModelSetup('fallback');
         return false;
       }
     };
@@ -126,6 +157,15 @@ export default function Chat() {
   }, []);
 
   const onSubmit = (text: string)=> {
+    if (modelSetup === "fallback") {
+      setMessages(prevMessages => [
+        ...prevMessages,
+        { type: "user", text },
+        { type: "bert", text: sentenceFallback(text) },
+      ]);
+      return;
+    }
+
     if (!bertModel.current || modelSetup !== "done") {
       setMessages(prevMessages => [
         ...prevMessages,
@@ -135,7 +175,7 @@ export default function Chat() {
     }
 
     setMessages(prevMessages => [...prevMessages, { type: "user", text }]);
-      bertModel?.current.findAnswers(text, passage)
+      bertModel?.current.findAnswers(text, initialPassage)
       .then((answers: any) => {
         console.log('Answers: ', answers);
         setMessages(prevMessages => [...prevMessages, { type: "bert", text: answers[0]?.text || "...mmm I don't know" }]);
@@ -148,41 +188,27 @@ export default function Chat() {
   }
   return (
     <div className={classes.container}>
+      {modelSetup === 'fallback' && (
+        <div className={classes.helperText}>
+          Local QnA model files are incomplete, so the chat is running in fallback mode with
+          answers extracted from the embedded profile summary.
+        </div>
+      )}
       <Paper className={classes.paper}>
         <Paper id="style-1" className={classes.messagesBody}>
           {modelSetup=='loading' && <CircularProgress />}
-          {modelSetup === 'error' && (<><ErrorIcon /> Could not load local model. Run `npm run download-qna-model`.</>)}
           {modelSetup==='done' && messages.map((msg,index)=> 
             msg.type=='bert' ? 
             <BertMessage message={msg.text} key={(index+msg.text)}/> : 
             <UserMessage message={msg.text} key={(index+msg.text)}/> )}
+          {modelSetup==='fallback' && messages.map((msg,index)=> 
+            msg.type=='bert' ? 
+            <BertMessage message={msg.text} key={(index+msg.text)}/> : 
+            <UserMessage message={msg.text} key={(index+msg.text)}/> )}
+          {modelSetup === 'notStarted' && (<><ErrorIcon /> Initializing chat...</>)}
         </Paper>
         <TextInput text={""} handleSubmit={onSubmit} />
       </Paper>
-        <MoreInfoButton
-        title=" What is this chat?"
-        content={<div>
-                 <Typography variant="body2" paragraph>
-                  This BERT model, which stands for Bidirectional Encoder Representations from Transformers, has been specifically trained on a question-answering (QnA) dataset.{" "}
-                  When provided with a 'passage' as input text, it can effectively respond to questions related to that passage.{" "}
-                  However, it's important to mention that the model can only provide answers that are directly present or implied within the provided text.{" "}
-                  Additionally, BERT is widely used in various applications, including natural language processing tasks such as text classification, sentiment analysis, and language understanding.{" "}
-                  It powers features in Google Search, enabling more accurate and relevant search results by understanding the context and semantics of search queries.{" "}
-                  Furthermore, the background image is also generated by another AI model known as 'OpenArt SDXL'.{" "}
-                  Try changing the passage to get new responses.
-                </Typography>
-
-                  <br></br>
-                  <TextField
-                    id="outlined-textarea"
-                    label="Passage"
-                    value={passage}
-                    multiline
-                    fullWidth
-                    onChange={(e:ChangeEvent<HTMLInputElement>)=>setPassage(e.target.value)}
-                  />
-                </div> }
-        />
       <Stack 
         width="100%" 
         spacing={2} 

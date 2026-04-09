@@ -78,10 +78,11 @@ const demos: DemoDefinition[] = [
     title: 'Profile Q&A Assistant',
     icon: <SmartToyIcon fontSize="small" />,
     summary:
-      'Transformer-powered question answering over my profile. It offers a faster way to explore key details than scanning static text.',
+      'Transformer-powered question answering over my profile. It offers a faster way to explore key details than scanning static text, using a fixed background passage embedded directly in the browser.',
     whyBuilt: [
       'Built to package my background into a searchable conversational layer instead of relying only on static text.',
       'The product idea is simple: expose transformer inference directly in the browser through a practical interface.',
+      'The model only answers from that embedded passage, so the UX is intentionally scoped instead of pretending to be a general assistant.',
       'It also shows where model limits appear, so the UX sets expectations while staying useful.',
     ],
     tech: ['Transformers.js', 'TensorFlow.js QnA', 'React', 'MUI'],
@@ -169,8 +170,8 @@ function renderHeroChip(label: string) {
 function DemoSection({ demo }: { demo: DemoDefinition }) {
   return (
     <Box sx={{ py: { xs: 4, md: 5 } }}>
-      <Stack direction={{ xs: 'column', xl: 'row' }} spacing={{ xs: 3.5, xl: 5 }} alignItems="flex-start">
-        <Stack spacing={2.5} sx={{ width: '100%', maxWidth: { xl: 360 } }}>
+      <Stack spacing={3.5} alignItems="stretch">
+        <Stack spacing={2.5} sx={{ width: '100%', maxWidth: 720 }}>
           <Box>
             <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.25 }}>
               <Box sx={{ color: colors.accent, display: 'flex', alignItems: 'center' }}>{demo.icon}</Box>
@@ -216,7 +217,7 @@ function DemoSection({ demo }: { demo: DemoDefinition }) {
           </Button>
         </Stack>
 
-        <Box sx={{ width: '100%', flex: 1 }}>
+        <Box sx={{ width: '100%' }}>
           <Box
             sx={{
               borderRadius: 4,
