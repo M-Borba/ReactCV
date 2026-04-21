@@ -7,16 +7,25 @@ import Slider from "@mui/material/Slider";
 import { Webcam } from "./utils/webcam";
 import "./app.css";
 
-const getWebcamErrorMessage = (error) => {
-  if (error?.name === "NotAllowedError" || error?.name === "SecurityError") {
+// Declare Tesseract on window
+declare global {
+  interface Window {
+    Tesseract: any;
+  }
+}
+
+
+const getWebcamErrorMessage = (error: unknown) => {
+  const err = error as Error;
+  if (err?.name === "NotAllowedError" || err?.name === "SecurityError") {
     return "Camera access was denied. Please allow webcam permissions in your browser to use this demo.";
   }
 
-  if (error?.name === "NotFoundError" || error?.name === "DevicesNotFoundError") {
+  if (err?.name === "NotFoundError" || err?.name === "DevicesNotFoundError") {
     return "No camera was found on this device.";
   }
 
-  if (error?.message === "WEBCAM_UNSUPPORTED") {
+  if (err?.message === "WEBCAM_UNSUPPORTED") {
     return "This browser does not support webcam access.";
   }
 
@@ -26,14 +35,14 @@ const OCR_COOLDOWN_MS = 1200;
 const TESSERACT_CDN_URL =
   "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
 
-const formatIdentityDigits = (digits = "") => {
+const formatIdentityDigits = (digits: string = "") => {
   if (digits.length < 7) return "";
   const body = digits.slice(0, -1);
   const checkDigit = digits.slice(-1);
   return `${body}-${checkDigit}`;
 };
 
-const parseIdentityNumber = (rawText = "") => {
+const parseIdentityNumber = (rawText: string = "") => {
   console.log("rawText", rawText)
   const identityMatch = rawText.match(
     /(?:N[°ºo]?\s*(?:DE\s*)?IDENTIDAD|NUM(?:ERO)?\s*DE\s*IDENTIDAD|CI)\s*[:\-]?\s*([0-9.\- ]{6,})/i,
@@ -91,7 +100,7 @@ const loadTesseract = async () => {
   return window.Tesseract;
 };
 
-const getCropCanvas = (source, bbox, targetCanvas) => {
+const getCropCanvas = (source: HTMLVideoElement, bbox: { x: number; y: number; width: number; height: number; }, targetCanvas: HTMLCanvasElement) => {
   if (!source || !bbox || !targetCanvas) return null;
   const sourceWidth = source.videoWidth || source.naturalWidth || source.width;
   const sourceHeight = source.videoHeight || source.naturalHeight || source.height;
@@ -116,18 +125,18 @@ const CIDetectionCam = () => {
   const [cameraError, setCameraError] = useState("");
   const [ocrStatus, setOcrStatus] = useState("Esperando frente de CI...");
   const [identityNumber, setIdentityNumber] = useState("");
-  const [model, setModel] = useState({
+  const [model, setModel] = useState<{ net: tf.GraphModel | null; inputShape: number[] }>({
     net: null,
     inputShape: [1, 0, 0, 3],
   }); // init model & input shape
   const webcam = new Webcam(); // webcam handler
 
   // references
-  const cameraRef = useRef(null);
-  const canvasRef = useRef(null);
+  const cameraRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const thresholdRef = useRef(conf_threshold);
-  const stopDetectionRef = useRef(null);
-  const cropCanvasRef = useRef(document.createElement("canvas"));
+  const stopDetectionRef = useRef<(() => void) | null>(null);
+  const cropCanvasRef = useRef<HTMLCanvasElement>(document.createElement("canvas"));
   const isOcrBusyRef = useRef(false);
   const lastOcrAtRef = useRef(0);
 
@@ -195,6 +204,10 @@ const CIDetectionCam = () => {
         stopDetectionRef.current = null;
       }
       webcam.close(cameraRef.current);
+      // Cleanup the model
+      if (model.net) {
+        model.net.dispose();
+      }
     };
   }, []);
 
@@ -230,10 +243,11 @@ const CIDetectionCam = () => {
 
         isOcrBusyRef.current = true;
         lastOcrAtRef.current = now;
-        setOcrStatus("Leyendo N identidad...");
+        setOcrStatus("Leyendo Nº identidad...");
 
         try {
           const source = cameraRef.current;
+          if (!source) return;
           const cropCanvas = getCropCanvas(
             source,
             bestFrontDetection.bbox,
@@ -252,7 +266,7 @@ const CIDetectionCam = () => {
           const identityNumber = parseIdentityNumber(data?.text || "");
 
           if (!identityNumber) {
-            setOcrStatus("N identidad no encontrado");
+            setOcrStatus("Nº identidad no encontrado");
             return;
           }
 
@@ -319,7 +333,7 @@ const CIDetectionCam = () => {
 
         <div className="ocr-panel">
           <p className="ocr-status">Estado OCR: {ocrStatus}</p>
-          <p>N Identidad: {identityNumber || "-"}</p>
+          <p>Nº Identidad: {identityNumber || "-"}</p>
         </div>
       </div>
     </div>

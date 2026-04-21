@@ -13,8 +13,16 @@ import chatBackground from "./../../assets/aiChatBackground.jpeg";
 
 
 
+const calculateAge = (birthDate: Date) => {
+  const diff = Date.now() - birthDate.getTime();
+  const ageDate = new Date(diff); 
+  return Math.abs(ageDate.getUTCFullYear() - 1970);
+};
+
+const age = calculateAge(new Date(1998, 7, 28));
+
 const initialPassage = `Martín Borba is a Computer Engineer from Fing UDELAR in Montevideo , Uruguay . He graduated in February 2024 .
-Martín was born on August 28 , 1998 , making him 25 years old .
+Martín was born on August 28 , 1998 , making him ${age} years old .
 He has a strong passion for artificial intelligence, especially machine learning, which these days has multiple applications.
 His thesis focused on detecting damages in wind turbine blades using AI .
 Martín leads an active lifestyle . 
@@ -176,11 +184,11 @@ export default function Chat() {
 
     setMessages(prevMessages => [...prevMessages, { type: "user", text }]);
       bertModel?.current.findAnswers(text, initialPassage)
-      .then((answers: any) => {
+      .then((answers: any[]) => {
         console.log('Answers: ', answers);
         setMessages(prevMessages => [...prevMessages, { type: "bert", text: answers[0]?.text || "...mmm I don't know" }]);
       })
-      .catch((error:any) => {
+      .catch((error: unknown) => {
         console.log('Error finding answers:', error);
         setMessages(prevMessages => [...prevMessages, { type: "bert", text: "An error occurred while processing your question" }]);
       });

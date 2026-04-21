@@ -19,11 +19,11 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-export const TextInput = ({ handleSubmit }: any) => {
+export const TextInput = ({ handleSubmit }: { handleSubmit: (text: string) => void }) => {
   const classes = useStyles();
   const [text, setText] = useState("")
 
-  const localSubmit = (e: any) => {
+  const localSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!text) return
     handleSubmit(text)
@@ -38,7 +38,7 @@ export const TextInput = ({ handleSubmit }: any) => {
           label="Chat with MBert"
           className={classes.wrapText}
           multiline
-          onChange={(e: any) => { setText(e.target.value) }}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setText(e.target.value) }}
           value={text}
           sx={{margin:"1%"}}
           minRows={2}

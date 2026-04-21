@@ -18,10 +18,16 @@ import SmartToyIcon from '@mui/icons-material/SmartToy';
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import DeferredRender from '../../components/DeferredRender';
+import { useTheme } from '@mui/material/styles';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+
+const CV_DOWNLOAD_URL = '/Mart%C3%ADn%20Borba%20L%C3%B3pez%20CV.pdf';
+const SCHOLARSHIP_DOWNLOAD_URL = '/ReporteEscolaridadEgreso.pdf';
+const LINKEDIN_URL = 'https://www.linkedin.com/in/martin-borba-l%C3%B3pez-923ba2180/';
 
 const loadGameCam = () => import('../../components/GameCam/GameCam');
 const loadChat = () => import('../../components/BertChat/Chat');
-const loadCIDetectionCam = () => import('../../components/CICam/CIDetectionCam.jsx');
+const loadCIDetectionCam = () => import('../../components/CICam/CIDetectionCam.tsx');
 
 type DemoDefinition = {
   title: string;
@@ -67,6 +73,8 @@ const demos: DemoDefinition[] = [
       'Built to prove that real-time browser inference can feel responsive enough for consumer-facing UX.',
       'Landmarks become game state, collision logic, and feedback loops without any server round-trip.',
       'It also makes webcam permissions, model warmup, and graceful degradation obvious to non-technical reviewers.',
+      'Uses a TensorFlow.js face mesh model to detect key points on the face, including the corners of the mouth.',
+      'By calculating a simple ratio between the distance of these points, it determines if the mouth is open or closed.',
     ],
     tech: ['TensorFlow.js', 'MediaPipe Face Mesh', 'Canvas', 'React'],
     githubUrl: 'https://github.com/M-Borba/ReactCV/tree/main/src/components/GameCam',
@@ -109,26 +117,31 @@ const demos: DemoDefinition[] = [
   },
 ];
 
-const colors = {
-  pageText: '#f8fafc',
-  mutedText: 'rgba(226,232,240,0.72)',
-  bodyText: 'rgba(226,232,240,0.8)',
-  accent: '#5eead4',
-  line: 'rgba(148,163,184,0.16)',
-  chipBg: 'rgba(15,23,42,0.18)',
+const getTheme = (mode: 'light' | 'dark') => {
+  const isLight = mode === 'light';
+  return {
+    colors: {
+      pageText: isLight ? '#0f172a' : '#f8fafc',
+      mutedText: isLight ? 'rgba(15,23,42,0.72)' : 'rgba(226,232,240,0.72)',
+      bodyText: isLight ? 'rgba(15,23,42,0.8)' : 'rgba(226,232,240,0.8)',
+      accent: isLight ? '#0d9488' : '#5eead4',
+      line: isLight ? 'rgba(15,23,42,0.16)' : 'rgba(148,163,184,0.16)',
+      chipBg: isLight ? 'rgba(241,245,249,0.8)' : 'rgba(15,23,42,0.18)',
+    },
+    pageBackground: isLight
+      ? 'radial-gradient(circle at top left, rgba(45,212,191,0.1), transparent 25%), radial-gradient(circle at 88% 10%, rgba(251,146,60,0.1), transparent 20%), radial-gradient(circle at 50% 100%, rgba(59,130,246,0.1), transparent 28%), linear-gradient(180deg, #f8fafc 0%, #f1f5f9 42%, #e2e8f0 100%)'
+      : 'radial-gradient(circle at top left, rgba(45,212,191,0.2), transparent 25%), radial-gradient(circle at 88% 10%, rgba(251,146,60,0.16), transparent 20%), radial-gradient(circle at 50% 100%, rgba(59,130,246,0.16), transparent 28%), linear-gradient(180deg, #020617 0%, #0f172a 42%, #111827 100%)',
+    surfaceBackground: isLight
+      ? 'linear-gradient(140deg, rgba(255,255,255,0.88) 0%, rgba(248,250,252,0.8) 46%, rgba(204,251,241,0.42) 100%)'
+      : 'linear-gradient(140deg, rgba(15,23,42,0.88) 0%, rgba(30,41,59,0.8) 46%, rgba(15,118,110,0.42) 100%)',
+    surfaceOverlay: isLight
+      ? 'radial-gradient(circle at top right, rgba(0,0,0,0.04), transparent 24%), radial-gradient(circle at 20% 15%, rgba(251,191,36,0.05), transparent 22%)'
+      : 'radial-gradient(circle at top right, rgba(255,255,255,0.14), transparent 24%), radial-gradient(circle at 20% 15%, rgba(251,191,36,0.1), transparent 22%)',
+    demoFrameBackground: isLight
+      ? 'linear-gradient(180deg, rgba(241,245,249,0.8), rgba(226,232,240,0.6))'
+      : 'linear-gradient(180deg, rgba(2,6,23,0.42), rgba(15,23,42,0.2))',
+  };
 };
-
-const pageBackground =
-  'radial-gradient(circle at top left, rgba(45,212,191,0.2), transparent 25%), radial-gradient(circle at 88% 10%, rgba(251,146,60,0.16), transparent 20%), radial-gradient(circle at 50% 100%, rgba(59,130,246,0.16), transparent 28%), linear-gradient(180deg, #020617 0%, #0f172a 42%, #111827 100%)';
-
-const surfaceBackground =
-  'linear-gradient(140deg, rgba(15,23,42,0.88) 0%, rgba(30,41,59,0.8) 46%, rgba(15,118,110,0.42) 100%)';
-
-const surfaceOverlay =
-  'radial-gradient(circle at top right, rgba(255,255,255,0.14), transparent 24%), radial-gradient(circle at 20% 15%, rgba(251,191,36,0.1), transparent 22%)';
-
-const demoFrameBackground =
-  'linear-gradient(180deg, rgba(2,6,23,0.42), rgba(15,23,42,0.2))';
 
 const downloadFile = (filename: string, href: string) => {
   const link = document.createElement('a');
@@ -137,37 +150,39 @@ const downloadFile = (filename: string, href: string) => {
   link.click();
 };
 
-function renderTechChip(label: string) {
+function renderTechChip(label: string, t: ReturnType<typeof getTheme>) {
   return (
     <Chip
       key={label}
       label={label}
       size="small"
       sx={{
-        color: '#cbd5e1',
-        bgcolor: 'rgba(15,23,42,0.24)',
-        border: `1px solid ${colors.line}`,
+        color: t.colors.pageText,
+        bgcolor: t.colors.chipBg,
+        border: `1px solid ${t.colors.line}`,
       }}
     />
   );
 }
 
-function renderHeroChip(label: string) {
+function renderHeroChip(label: string, t: ReturnType<typeof getTheme>) {
   return (
     <Chip
       key={label}
       label={label}
       variant="outlined"
       sx={{
-        color: '#e2e8f0',
-        borderColor: 'rgba(226,232,240,0.22)',
-        bgcolor: colors.chipBg,
+        color: t.colors.pageText,
+        borderColor: t.colors.line,
+        bgcolor: t.colors.chipBg,
       }}
     />
   );
 }
 
-function DemoSection({ demo }: { demo: DemoDefinition }) {
+function DemoSection({ demo, t }: { demo: DemoDefinition; t: ReturnType<typeof getTheme> }) {
+  const { colors, demoFrameBackground } = t;
+
   return (
     <Box sx={{ py: { xs: 4, md: 5 } }}>
       <Stack spacing={3.5} alignItems="stretch">
@@ -185,7 +200,7 @@ function DemoSection({ demo }: { demo: DemoDefinition }) {
           </Box>
 
           <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
-            {demo.tech.map(renderTechChip)}
+            {demo.tech.map(tech => renderTechChip(tech, t))}
           </Stack>
 
           <Stack spacing={0.9}>
@@ -205,11 +220,11 @@ function DemoSection({ demo }: { demo: DemoDefinition }) {
             endIcon={<LaunchIcon />}
             sx={{
               alignSelf: 'flex-start',
-              color: '#e2e8f0',
-              borderColor: 'rgba(226,232,240,0.22)',
+              color: colors.pageText,
+              borderColor: colors.line,
               '&:hover': {
                 borderColor: colors.pageText,
-                bgcolor: 'rgba(248,250,252,0.06)',
+                bgcolor: 'rgba(148,163,184,0.1)',
               },
             }}
           >
@@ -252,6 +267,10 @@ function DemoSection({ demo }: { demo: DemoDefinition }) {
 }
 
 function MBorba() {
+  const muiTheme = useTheme();
+  const t = getTheme(muiTheme.palette.mode as 'light' | 'dark');
+  const { colors, pageBackground, surfaceBackground, surfaceOverlay } = t;
+
   return (
     <Box sx={{ minHeight: '100vh', background: pageBackground, color: colors.pageText }}>
       <Container component="main" maxWidth="lg" sx={{ pt: { xs: 4, md: 6 }, pb: 8 }}>
@@ -308,12 +327,12 @@ function MBorba() {
                   <Typography
                     variant="h5"
                     component="p"
-                    sx={{ maxWidth: 760, color: 'rgba(226,232,240,0.94)', mb: 2 }}
+                    sx={{ maxWidth: 760, color: colors.bodyText, fontWeight: 500, mb: 2 }}
                   >
                     Computer engineer focused on ML backend systems, inference
                     pipelines, and APIs built for real-world products.
                   </Typography>
-                  <Typography variant="body1" sx={{ maxWidth: 700, color: 'rgba(226,232,240,0.78)' }}>
+                  <Typography variant="body1" sx={{ maxWidth: 700, color: colors.mutedText }}>
                     I work across backend architecture, model integration, and applied AI delivery,
                     with a strong interest in scalable systems, data flow, and reliable product infrastructure.
                   </Typography>
@@ -324,8 +343,8 @@ function MBorba() {
                     Profile
                   </Typography>
                   {profileFacts.map((fact) => (
-                    <Box key={fact} sx={{ py: 1.25, borderTop: '1px solid rgba(148,163,184,0.18)' }}>
-                      <Typography variant="body2" sx={{ color: 'rgba(226,232,240,0.76)' }}>
+                    <Box key={fact} sx={{ py: 1.25, borderTop: `1px solid ${colors.line}` }}>
+                      <Typography variant="body2" sx={{ color: colors.mutedText }}>
                         {fact}
                       </Typography>
                     </Box>
@@ -334,7 +353,7 @@ function MBorba() {
               </Stack>
 
               <Stack direction="row" spacing={1.25} useFlexGap flexWrap="wrap">
-                {profileStack.map(renderHeroChip)}
+                {profileStack.map(chip => renderHeroChip(chip, t))}
               </Stack>
 
               <Stack
@@ -344,12 +363,12 @@ function MBorba() {
                   <Divider
                     flexItem
                     orientation="vertical"
-                    sx={{ display: { xs: 'none', md: 'block' }, borderColor: 'rgba(226,232,240,0.16)' }}
+                    sx={{ display: { xs: 'none', md: 'block' }, borderColor: colors.line }}
                   />
                 }
               >
                 {profileSignals.map((signal) => (
-                  <Typography key={signal} variant="body2" sx={{ color: 'rgba(226,232,240,0.78)' }}>
+                  <Typography key={signal} variant="body2" sx={{ color: colors.mutedText }}>
                     {signal}
                   </Typography>
                 ))}
@@ -357,33 +376,47 @@ function MBorba() {
 
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} useFlexGap flexWrap="wrap">
                 <Button
-                  onClick={() => downloadFile('MBorba_CV.pdf', '/Mart%C3%ADn%20Borba%20L%C3%B3pez%20CV.pdf')}
+                  onClick={() => downloadFile('MBorba_CV.pdf', CV_DOWNLOAD_URL)}
                   variant="contained"
                   startIcon={<DownloadIcon />}
                   endIcon={<ContactPageIcon />}
                   sx={{
-                    bgcolor: '#f8fafc',
-                    color: '#0f172a',
-                    '&:hover': { bgcolor: '#e2e8f0' },
+                    bgcolor: muiTheme.palette.mode === 'light' ? '#0f172a' : '#f8fafc',
+                    color: muiTheme.palette.mode === 'light' ? '#f8fafc' : '#0f172a',
+                    '&:hover': { bgcolor: muiTheme.palette.mode === 'light' ? '#1e293b' : '#e2e8f0' },
                   }}
                 >
                   Download resume
                 </Button>
                 <Button
-                  onClick={() => downloadFile('MBorba_scholarship.pdf', '/ReporteEscolaridadEgreso.pdf')}
+                  onClick={() => downloadFile('MBorba_scholarship.pdf', SCHOLARSHIP_DOWNLOAD_URL)}
                   variant="outlined"
                   startIcon={<DownloadIcon />}
                   endIcon={<DescriptionIcon />}
                   sx={{
                     color: colors.pageText,
-                    borderColor: 'rgba(248,250,252,0.34)',
+                    borderColor: colors.line,
                     '&:hover': {
                       borderColor: colors.pageText,
-                      bgcolor: 'rgba(248,250,252,0.08)',
+                      bgcolor: 'rgba(148,163,184,0.1)',
                     },
                   }}
                 >
                   Download degree report
+                </Button>
+                <Button
+                  href={LINKEDIN_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  variant="text"
+                  startIcon={<LinkedInIcon />}
+                  endIcon={<LaunchIcon />}
+                  sx={{
+                    color: colors.pageText,
+                    '&:hover': { color: colors.pageText, bgcolor: 'rgba(148,163,184,0.1)' },
+                  }}
+                >
+                  LinkedIn
                 </Button>
                 <Button
                   href="https://github.com/M-Borba/ReactCV"
@@ -393,8 +426,8 @@ function MBorba() {
                   startIcon={<GitHubIcon />}
                   endIcon={<LaunchIcon />}
                   sx={{
-                    color: '#cbd5e1',
-                    '&:hover': { color: colors.pageText, bgcolor: 'rgba(248,250,252,0.08)' },
+                    color: colors.pageText,
+                    '&:hover': { color: colors.pageText, bgcolor: 'rgba(148,163,184,0.1)' },
                   }}
                 >
                   View portfolio code
@@ -430,7 +463,7 @@ function MBorba() {
 
             <Stack divider={<Divider sx={{ borderColor: 'rgba(148,163,184,0.14)' }} />}>
               {demos.map((demo) => (
-                <DemoSection key={demo.title} demo={demo} />
+                <DemoSection key={demo.title} demo={demo} t={t} />
               ))}
             </Stack>
 
