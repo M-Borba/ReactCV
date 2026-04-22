@@ -3,21 +3,22 @@ import labels from "./labels.json";
 /**
  * Render prediction boxes
  * @param {HTMLCanvasElement} canvasRef canvas tag reference
- * @param {Array} boxes_data boxes array
- * @param {Array} scores_data scores array
- * @param {Array} classes_data class array
- * @param {conf_threshold} conf_threshold conf_threshold for detection
- * @param {Array[Number]} ratios boxes ratio [xRatio, yRatio]
+ * @param {Float32Array | Int32Array | Uint8Array} boxes_data boxes array
+ * @param {Float32Array | Int32Array | Uint8Array} scores_data scores array
+ * @param {Float32Array | Int32Array | Uint8Array} classes_data class array
+ * @param {number[]} ratios boxes ratio [xRatio, yRatio]
+ * @param {number} conf_threshold conf_threshold for detection
  */
 export const renderBoxes = (
-  canvasRef,
-  boxes_data,
-  scores_data,
-  classes_data,
-  ratios,
-  conf_threshold = 0.55,
+  canvasRef: HTMLCanvasElement,
+  boxes_data: Float32Array | Int32Array | Uint8Array,
+  scores_data: Float32Array | Int32Array | Uint8Array,
+  classes_data: Float32Array | Int32Array | Uint8Array,
+  ratios: number[],
+  conf_threshold: number = 0.55,
 ) => {
   const ctx = canvasRef.getContext("2d");
+  if (!ctx) return;
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // clean canvas
 
   const colors = new Colors();
@@ -31,7 +32,7 @@ export const renderBoxes = (
   ctx.textBaseline = "top";
 
   for (let i = 0; i < scores_data.length; ++i) {
-    const klass = labels[classes_data[i]];
+    const klass = (labels as string[])[classes_data[i]];
     const color = colors.get(classes_data[i]);
     const score = (scores_data[i] * 100).toFixed(1);
     if (scores_data[i] < conf_threshold) continue;
@@ -44,7 +45,7 @@ export const renderBoxes = (
     const height = y2 - y1;
 
     // draw box.
-    ctx.fillStyle = Colors.hexToRgba(color, 0.2);
+    ctx.fillStyle = Colors.hexToRgba(color, 0.2) || "rgba(0,0,0,0.2)";
     ctx.fillRect(x1, y1, width, height);
 
     // draw border box.
@@ -74,6 +75,9 @@ export const renderBoxes = (
 };
 
 class Colors {
+  palette: string[];
+  n: number;
+
   // ultralytics color palette https://ultralytics.com/
   constructor() {
     this.palette = [
@@ -101,9 +105,9 @@ class Colors {
     this.n = this.palette.length;
   }
 
-  get = (i) => this.palette[Math.floor(i) % this.n];
+  get = (i: number) => this.palette[Math.floor(i) % this.n];
 
-  static hexToRgba = (hex, alpha) => {
+  static hexToRgba = (hex: string, alpha: number) => {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result
       ? `rgba(${[

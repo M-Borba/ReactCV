@@ -5,17 +5,17 @@ import labels from "./labels.json";
 const numClass = labels.length;
 const FRONT_LABELS = new Set(["front", "front_old"]);
 
-const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 
 /**
  * Preprocess image / frame before forwarded into the model
  * @param {HTMLVideoElement|HTMLImageElement} source
- * @param {Number} modelWidth
- * @param {Number} modelHeight
+ * @param {number} modelWidth
+ * @param {number} modelHeight
  * @returns input tensor, xRatio and yRatio
  */
-const preprocess = (source, modelWidth, modelHeight) => {
-  let xRatio, yRatio; // ratios for boxes
+const preprocess = (source: HTMLVideoElement | HTMLImageElement, modelWidth: number, modelHeight: number): [tf.Tensor, number, number] => {
+  let xRatio = 1, yRatio = 1; // ratios for boxes
 
   const input = tf.tidy(() => {
     const img = tf.browser.fromPixels(source);
@@ -33,7 +33,7 @@ const preprocess = (source, modelWidth, modelHeight) => {
     yRatio = maxSize / h; // update yRatio
 
     return tf.image
-      .resizeBilinear(imgPadded, [modelWidth, modelHeight]) // resize frame
+      .resizeBilinear(imgPadded as tf.Tensor3D, [modelWidth, modelHeight]) // resize frame
       .div(255.0) // normalize
       .expandDims(0); // add batch
   });
@@ -43,25 +43,20 @@ const preprocess = (source, modelWidth, modelHeight) => {
 
 /**
  * Function run inference and do detection from source.
- * @param {HTMLImageElement|HTMLVideoElement} source
- * @param {tf.GraphModel} model loaded YOLOv8 tensorflow.js model
- * @param {HTMLCanvasElement} canvasRef canvas reference
- * @param {conf_threshold} conf_threshold conf_threshold for detection
- * @param {VoidFunction} callback function to run after detection process
  */
 export const detect = async (
-  source,
-  model,
-  canvasRef,
-  getConfidenceThreshold,
-  callback = () => {},
-  onDetection = () => {},
+  source: HTMLVideoElement | HTMLImageElement,
+  model: { net: tf.GraphModel; inputShape: number[] },
+  canvasRef: HTMLCanvasElement,
+  getConfidenceThreshold: () => number,
+  callback: () => void = () => {},
+  onDetection: (detection: any) => void = () => {},
 ) => {
   const [modelWidth, modelHeight] = model.inputShape.slice(1, 3); // get model width and height
 
   tf.engine().startScope(); // start scoping tf engine
   const [input, xRatio, yRatio] = preprocess(source, modelWidth, modelHeight); // preprocess image
-  const res = model.net.execute(input); // inference model
+  const res = model.net.execute(input) as tf.Tensor; // inference model
   const transRes = res.transpose([0, 2, 1]); // transpose result [b, det, n] => [b, n, det]
   const boxes = tf.tidy(() => {
     const w = transRes.slice([0, 0, 2], [-1, -1, 1]); // get width
@@ -83,13 +78,13 @@ export const detect = async (
 
   const [scores, classes] = tf.tidy(() => {
     // class scores
-    const rawScores = transRes.slice([0, 0, 4], [-1, -1, numClass]).squeeze(0); // #6 only squeeze axis 0 to handle only 1 class models
+    const rawScores = transRes.slice([0, 0, 4], [-1, -1, numClass]).squeeze([0]); // #6 only squeeze axis 0 to handle only 1 class models
     return [rawScores.max(1), rawScores.argMax(1)];
-  }); // get max scores and classes index
+  }) as [tf.Tensor, tf.Tensor]; // get max scores and classes index
 
   const nms = await tf.image.nonMaxSuppressionAsync(
-    boxes,
-    scores,
+    boxes as tf.Tensor2D,
+    scores as tf.Tensor1D,
     500,
     0.45,
     0.2,
@@ -108,8 +103,8 @@ export const detect = async (
     getConfidenceThreshold(),
   ); // render boxes
 
-  const sourceWidth = source.videoWidth || source.naturalWidth || source.width;
-  const sourceHeight = source.videoHeight || source.naturalHeight || source.height;
+  const sourceWidth = (source as HTMLVideoElement).videoWidth || (source as HTMLImageElement).naturalWidth || source.width;
+  const sourceHeight = (source as HTMLVideoElement).videoHeight || (source as HTMLImageElement).naturalHeight || source.height;
   let bestFrontDetection = null;
 
   const confidenceThreshold = getConfidenceThreshold();
@@ -118,7 +113,7 @@ export const detect = async (
     const score = scores_data[i];
     if (score < confidenceThreshold) continue;
 
-    const label = labels[classes_data[i]];
+    const label = (labels as string[])[classes_data[i]];
     if (!FRONT_LABELS.has(label)) continue;
 
     let [y1, x1, y2, x2] = boxes_data.slice(i * 4, (i + 1) * 4);
@@ -150,19 +145,16 @@ export const detect = async (
 
 /**
  * Function to detect video from every source.
- * @param {HTMLVideoElement} vidSource video source
- * @param {tf.GraphModel} model loaded YOLOv8 tensorflow.js model
- * @param {HTMLCanvasElement} canvasRef canvas reference
  */
 export const detectVideo = (
-  vidSource,
-  model,
-  canvasRef,
-  getConfidenceThreshold = () => 0.5,
-  onDetection = () => {},
+  vidSource: HTMLVideoElement,
+  model: { net: tf.GraphModel; inputShape: number[] },
+  canvasRef: HTMLCanvasElement,
+  getConfidenceThreshold: () => number = () => 0.5,
+  onDetection: (detection: any) => void = () => {},
 ) => {
   let isCancelled = false;
-  let frameId = null;
+  let frameId: number | null = null;
 
   /**
    * Function to detect every frame from video
@@ -174,7 +166,9 @@ export const detectVideo = (
 
     if (vidSource.videoWidth === 0 && vidSource.srcObject === null) {
       const ctx = canvasRef.getContext("2d");
-      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // clean canvas
+      if (ctx) {
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // clean canvas
+      }
       return; // handle if source is closed
     }
 

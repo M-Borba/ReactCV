@@ -74,7 +74,7 @@ const loadTesseract = async () => {
 
   await new Promise((resolve, reject) => {
     const checkLoaded = () => {
-      if (window.Tesseract) resolve();
+      if (window.Tesseract) resolve(void 0);
       else reject(new Error("Unable to load OCR engine"));
     };
 
@@ -85,7 +85,7 @@ const loadTesseract = async () => {
     }
 
     if (window.Tesseract) {
-      resolve();
+      resolve(void 0);
       return;
     }
 
@@ -102,8 +102,8 @@ const loadTesseract = async () => {
 
 const getCropCanvas = (source: HTMLVideoElement, bbox: { x: number; y: number; width: number; height: number; }, targetCanvas: HTMLCanvasElement) => {
   if (!source || !bbox || !targetCanvas) return null;
-  const sourceWidth = source.videoWidth || source.naturalWidth || source.width;
-  const sourceHeight = source.videoHeight || source.naturalHeight || source.height;
+  const sourceWidth = source.videoWidth || source.width;
+  const sourceHeight = source.videoHeight || source.height;
   if (!sourceWidth || !sourceHeight) return null;
 
   const x = Math.max(0, Math.floor(bbox.x));
@@ -115,6 +115,7 @@ const getCropCanvas = (source: HTMLVideoElement, bbox: { x: number; y: number; w
   targetCanvas.width = width;
   targetCanvas.height = height;
   const ctx = targetCanvas.getContext("2d", { willReadFrequently: true });
+  if (!ctx) return null;
   ctx.drawImage(source, x, y, width, height, 0, 0, width, height);
   return targetCanvas;
 };
@@ -170,7 +171,7 @@ const CIDetectionCam = () => {
           },
         ); // load model
 
-        const dummyInput = tf.ones(yolov8.inputs[0].shape);
+        const dummyInput = tf.ones(yolov8.inputs[0].shape!);
         const warmupResults = yolov8.execute(dummyInput);
 
         if (!isMounted) {
@@ -182,7 +183,7 @@ const CIDetectionCam = () => {
         setCameraError("");
         setModel({
           net: yolov8,
-          inputShape: yolov8.inputs[0].shape,
+          inputShape: yolov8.inputs[0].shape!,
         }); // set model & input shape
 
         tf.dispose([warmupResults, dummyInput]); // cleanup memory
@@ -222,10 +223,10 @@ const CIDetectionCam = () => {
 
     stopDetectionRef.current = detectVideo(
       cameraRef.current,
-      model,
+      { net: model.net, inputShape: model.inputShape },
       canvasRef.current,
       () => thresholdRef.current,
-      async (bestFrontDetection) => {
+      async (bestFrontDetection: any) => {
         if (!bestFrontDetection) {
           if (!isOcrBusyRef.current) {
             setOcrStatus("Esperando frente de CI...");
@@ -319,7 +320,7 @@ const CIDetectionCam = () => {
           <div className="slider">
             <Slider
               value={conf_threshold}
-              onChange={(event, newValue) => setThreshold(Array.isArray(newValue) ? newValue[0] : newValue)}
+              onChange={(_event, newValue) => setThreshold(Array.isArray(newValue) ? newValue[0] : newValue)}
               aria-labelledby="confidence-threshold-slider"
               valueLabelDisplay="auto"
               step={0.01}

@@ -98,6 +98,7 @@ const GameCamComponent = () => {
   ) => {
     const canvas = canvasRef.current as HTMLCanvasElement;
     const context = canvas.getContext('2d');
+    if (!context) return;
 
     gameState.current.junkFood.forEach((food: Food) => {
       drawFood(food, foodWidth, context, gameState.current.showLandMarks);
@@ -123,7 +124,9 @@ const GameCamComponent = () => {
       if (eatingFood) {
         if (!gameState.current.capturedImage && 3 * gameState.current.time > gameTime / gameVelocity) {
           const video = videoRef.current;
-          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+          if (context) {
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+          }
           const imageDataURL = canvas.toDataURL('image/png');
           gameState.current.capturedImage = imageDataURL;
         }
@@ -150,7 +153,7 @@ const GameCamComponent = () => {
 
     if (gameState.current.time > gameTime / gameVelocity || gameState.current.time === -1) {
       gameState.current.time = -1;
-      canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+      canvasContext?.clearRect(0, 0, canvas.width, canvas.height);
       setGameScore(initialGameScore);
       gameState.current = initialGameState;
       return;
@@ -164,7 +167,7 @@ const GameCamComponent = () => {
 
     if (detector.current?.estimateFaces) {
       detector.current.estimateFaces(videoRef.current).then((result: any[]) => {
-        canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+        canvasContext?.clearRect(0, 0, canvas.width, canvas.height);
 
         if (result[0]) {
           const faceBox = result[0].box;
@@ -174,7 +177,7 @@ const GameCamComponent = () => {
           const lipLeft = result[0].keypoints[409];
           const faceWidth = faceBox.width;
 
-          if (gameState.current.showLandMarks) {
+          if (gameState.current.showLandMarks && canvasContext) {
             canvasContext.strokeStyle = 'blue';
             canvasContext.lineWidth = 2;
             canvasContext.beginPath();
@@ -229,19 +232,16 @@ const GameCamComponent = () => {
     const setupWebcam = async () => {
       try {
         mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
-        videoRef.current.srcObject = mediaStream;
-        videoRef.current.onloadedmetadata = () => {
         if (videoRef.current) {
-            videoRef.current.srcObject = mediaStream;
-            videoRef.current.onloadedmetadata = () => {
-              videoRef.current?.play().catch((error: unknown) => {
-                console.log('Error playing video:', error);
-              });
-            };
+          videoRef.current.srcObject = mediaStream;
+          videoRef.current.onloadedmetadata = () => {
+            videoRef.current?.play().catch((error: unknown) => {
+              console.log('Error playing video:', error);
+            });
+          };
         }
-
         const model = faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh;
-        const detectorConfig: faceLandmarksDetection.MediaPipeFaceMeshMediaPipeModelConfig = {
+        const detectorConfig: faceLandmarksDetection.MediaPipeFaceMeshTfjsModelConfig = {
           runtime: 'tfjs',
           refineLandmarks: true,
         };

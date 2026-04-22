@@ -215,7 +215,7 @@ export default function Chat() {
             <UserMessage message={msg.text} key={(index+msg.text)}/> )}
           {modelSetup === 'notStarted' && (<><ErrorIcon /> Initializing chat...</>)}
         </Paper>
-        <TextInput text={""} handleSubmit={onSubmit} />
+        <TextInput handleSubmit={onSubmit} />
       </Paper>
       <Stack 
         width="100%" 

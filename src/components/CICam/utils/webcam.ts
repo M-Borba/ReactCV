@@ -4,9 +4,9 @@
 export class Webcam {
   /**
    * Open webcam and stream it through video tag.
-   * @param {HTMLVideoElement} videoRef video tag reference
+   * @param {HTMLVideoElement | null} videoRef video tag reference
    */
-  open = async (videoRef) => {
+  open = async (videoRef: HTMLVideoElement | null): Promise<MediaStream> => {
     if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
       throw new Error("WEBCAM_UNSUPPORTED");
     }
@@ -18,7 +18,9 @@ export class Webcam {
           facingMode: "environment",
         },
       });
-      videoRef.srcObject = stream;
+      if (videoRef) {
+        videoRef.srcObject = stream;
+      }
       return stream;
     } catch (error) {
       throw error;
@@ -27,11 +29,11 @@ export class Webcam {
 
   /**
    * Close opened webcam.
-   * @param {HTMLVideoElement} videoRef video tag reference
+   * @param {HTMLVideoElement | null} videoRef video tag reference
    */
-  close = (videoRef) => {
+  close = (videoRef: HTMLVideoElement | null): void => {
     if (videoRef?.srcObject) {
-      videoRef.srcObject.getTracks().forEach((track) => {
+      (videoRef.srcObject as MediaStream).getTracks().forEach((track) => {
         track.stop();
       });
       videoRef.srcObject = null;
