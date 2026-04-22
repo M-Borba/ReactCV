@@ -6,10 +6,12 @@
   "scripts": {
     "start": "vite",
     "prettier": "prettier --write",
-    "build": "tsc && vite build",
+    "verify-qna-model": "node scripts/verify-qna-model.js",
+    "build": "npm run verify-qna-model && tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --ext ts,tsx --fix",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "download-qna-model": "node scripts/download-qna-model.js"
   },
   "dependencies": {
     "@emotion/react": "^11.11.4",

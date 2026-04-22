@@ -9,7 +9,8 @@ const useStyles = makeStyles(() => ({
     display: "flex",
     justifyContent: "center",
     width: "95%",
-    margin: 'auto'
+    margin: 'auto',
+    paddingBottom: "0.5rem",
   },
   wrapText: {
     width: "100%"
@@ -18,11 +19,11 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-export const TextInput = ({ handleSubmit }: any) => {
+export const TextInput = ({ handleSubmit }: { handleSubmit: (text: string) => void }) => {
   const classes = useStyles();
   const [text, setText] = useState("")
 
-  const localSubmit = (e: any) => {
+  const localSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!text) return
     handleSubmit(text)
@@ -36,9 +37,11 @@ export const TextInput = ({ handleSubmit }: any) => {
           id="standard-text"
           label="Chat with MBert"
           className={classes.wrapText}
-          onChange={(e: any) => { setText(e.target.value) }}
+          multiline
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setText(e.target.value) }}
           value={text}
           sx={{margin:"1%"}}
+          minRows={2}
         />
         <Button 
          variant="contained"

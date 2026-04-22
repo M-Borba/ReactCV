@@ -3,6 +3,9 @@ import { renderBoxes } from "./renderBox";
 import labels from "./labels.json";
 
 const numClass = labels.length;
+const FRONT_LABELS = new Set(["front", "front_old"]);
+
+const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
 /**
  * Preprocess image / frame before forwarded into the model
@@ -52,6 +55,7 @@ export const detect = async (
   canvasRef,
   getConfidenceThreshold,
   callback = () => {},
+  onDetection = () => {},
 ) => {
   const [modelWidth, modelHeight] = model.inputShape.slice(1, 3); // get model width and height
 
@@ -103,6 +107,40 @@ export const detect = async (
     [xRatio, yRatio],
     getConfidenceThreshold(),
   ); // render boxes
+
+  const sourceWidth = source.videoWidth || source.naturalWidth || source.width;
+  const sourceHeight = source.videoHeight || source.naturalHeight || source.height;
+  let bestFrontDetection = null;
+
+  const confidenceThreshold = getConfidenceThreshold();
+
+  for (let i = 0; i < scores_data.length; ++i) {
+    const score = scores_data[i];
+    if (score < confidenceThreshold) continue;
+
+    const label = labels[classes_data[i]];
+    if (!FRONT_LABELS.has(label)) continue;
+
+    let [y1, x1, y2, x2] = boxes_data.slice(i * 4, (i + 1) * 4);
+    x1 = clamp(x1 / (xRatio || 1), 0, sourceWidth);
+    x2 = clamp(x2 / (xRatio || 1), 0, sourceWidth);
+    y1 = clamp(y1 / (yRatio || 1), 0, sourceHeight);
+    y2 = clamp(y2 / (yRatio || 1), 0, sourceHeight);
+
+    const width = Math.max(0, x2 - x1);
+    const height = Math.max(0, y2 - y1);
+    if (width < 10 || height < 10) continue;
+
+    if (!bestFrontDetection || score > bestFrontDetection.score) {
+      bestFrontDetection = {
+        label,
+        score,
+        bbox: { x: x1, y: y1, width, height },
+      };
+    }
+  }
+
+  onDetection(bestFrontDetection);
   tf.dispose([res, transRes, boxes, scores, classes, nms]); // clear memory
 
   callback();
@@ -121,6 +159,7 @@ export const detectVideo = (
   model,
   canvasRef,
   getConfidenceThreshold = () => 0.5,
+  onDetection = () => {},
 ) => {
   let isCancelled = false;
   let frameId = null;
@@ -139,11 +178,26 @@ export const detectVideo = (
       return; // handle if source is closed
     }
 
-    await detect(vidSource, model, canvasRef, getConfidenceThreshold, () => {
-      if (!isCancelled) {
-        frameId = requestAnimationFrame(detectFrame); // get another frame
-      }
-    });
+    if (
+      canvasRef.width !== vidSource.videoWidth ||
+      canvasRef.height !== vidSource.videoHeight
+    ) {
+      canvasRef.width = vidSource.videoWidth;
+      canvasRef.height = vidSource.videoHeight;
+    }
+
+    await detect(
+      vidSource,
+      model,
+      canvasRef,
+      getConfidenceThreshold,
+      () => {
+        if (!isCancelled) {
+          frameId = requestAnimationFrame(detectFrame); // get another frame
+        }
+      },
+      onDetection,
+    );
   };
 
   detectFrame(); // initialize to detect every frame

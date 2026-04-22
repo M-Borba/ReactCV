@@ -1,0 +1,20 @@
+{
+    "$schema": "https://opencode.ai/config.json",
+    "provider": {
+        "ollama": {
+            "npm": "@ai-sdk/openai-compatible",
+            "name": "Ollama (local)",
+            "options": {
+                "baseURL": "http://localhost:11434/v1"
+            },
+            "models": {
+                "qwen3:8b-q4_K_M": {
+                    "name": "Qwen3 8B Q4_K_M"
+                },
+                "mistral:7b-instruct-v0.3-q4_K_M": {
+                    "name": "Mistral 7B Instruct v0.3 Q4_K_M"
+                }
+            }
+        }
+    }
+}

@@ -16,7 +16,6 @@ import {
   distance,
   drawFood,
 } from './gameCamUtils';
-import MoreInfoButton from '../MoreInfoButton';
 
 const fallbackCapturedImage =
   'https://i0.wp.com/learn.onemonth.com/wp-content/uploads/2017/08/1-10.png?fit=845%2C503&ssl=1';
@@ -39,17 +38,18 @@ const initialGameScore = {
   healthyOnFloor: 0,
 };
 
-function getWebcamErrorMessage(error: any) {
-  if (error?.name === 'NotAllowedError' || error?.name === 'SecurityError') {
-    return 'Camera access was denied. Please allow webcam permissions in your browser to play this demo.';
+function getWebcamErrorMessage(error: unknown) {
+  const err = error as Error;
+  if (err?.name === 'NotAllowedError' || err?.name === 'SecurityError') {
+    return 'Camera access was denied. Please allow webcam permissions in your browser to use this demo.';
   }
 
-  if (error?.name === 'NotFoundError' || error?.name === 'DevicesNotFoundError') {
+  if (err?.name === 'NotFoundError' || err?.name === 'DevicesNotFoundError') {
     return 'No camera was found on this device.';
   }
 
-  if (error?.name === 'NotReadableError') {
-    return 'The camera is already being used by another application.';
+  if (err?.message === 'WEBCAM_UNSUPPORTED') {
+    return 'This browser does not support webcam access.';
   }
 
   return 'The webcam could not be started. Please check your browser permissions and device settings.';
@@ -71,7 +71,7 @@ const GameCamComponent = () => {
   const detector = useRef<any>();
 
   const addRandomJunkFood = () => {
-    const canvas: any = canvasRef.current;
+    const canvas = canvasRef.current as HTMLCanvasElement;
     const rndX = randomIntFromInterval(10, canvas.width - 10);
     const rndY = randomIntFromInterval(0, 10);
     gameState.current.junkFood.push({
@@ -96,7 +96,7 @@ const GameCamComponent = () => {
     lipBottom: Point,
     mouthOpen: boolean,
   ) => {
-    const canvas: any = canvasRef.current;
+    const canvas = canvasRef.current as HTMLCanvasElement;
     const context = canvas.getContext('2d');
 
     gameState.current.junkFood.forEach((food: Food) => {
@@ -145,7 +145,7 @@ const GameCamComponent = () => {
   };
 
   const gameLoop = () => {
-    const canvas: any = canvasRef.current;
+    const canvas = canvasRef.current as HTMLCanvasElement;
     const canvasContext = canvas?.getContext('2d');
 
     if (gameState.current.time > gameTime / gameVelocity || gameState.current.time === -1) {
@@ -163,7 +163,7 @@ const GameCamComponent = () => {
     }
 
     if (detector.current?.estimateFaces) {
-      detector.current.estimateFaces(videoRef.current).then((result: any) => {
+      detector.current.estimateFaces(videoRef.current).then((result: any[]) => {
         canvasContext.clearRect(0, 0, canvas.width, canvas.height);
 
         if (result[0]) {
@@ -231,18 +231,22 @@ const GameCamComponent = () => {
         mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
         videoRef.current.srcObject = mediaStream;
         videoRef.current.onloadedmetadata = () => {
-          videoRef.current.play().catch((error: any) => {
-            console.log('Error playing video:', error);
-          });
-        };
+        if (videoRef.current) {
+            videoRef.current.srcObject = mediaStream;
+            videoRef.current.onloadedmetadata = () => {
+              videoRef.current?.play().catch((error: unknown) => {
+                console.log('Error playing video:', error);
+              });
+            };
+        }
 
-        const model: any = faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh;
-        const detectorConfig: any = {
+        const model = faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh;
+        const detectorConfig: faceLandmarksDetection.MediaPipeFaceMeshMediaPipeModelConfig = {
           runtime: 'tfjs',
-          solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh',
+          refineLandmarks: true,
         };
 
-        await faceLandmarksDetection.createDetector(model, detectorConfig).then((det: any) => {
+        await faceLandmarksDetection.createDetector(model, detectorConfig).then((det) => {
           detector.current = det;
         });
 
@@ -308,29 +312,6 @@ const GameCamComponent = () => {
             >
               {gameState.current.showLandMarks ? 'Hide LandMarks' : 'Show LandMarks'}
             </button>
-            <MoreInfoButton
-              title=" What is this game?"
-              content={
-                <div>
-                  <p>
-                    Here I'm using a TensorFlow.js face mesh model to detect key points on the face,
-                    that includes the corners of the mouth.
-                  </p>
-                  <p>
-                    By calculating a simple ratio between the distance of these points, I can determine
-                    if the mouth is open or closed.
-                  </p>
-                  <p>
-                    The "Show Landmarks" button displays these points on the image for visual reference.
-                    Try catching as much junk food as you can!
-                  </p>
-                  <p>
-                    Additionally, the background image is also generated by another AI model known as
-                    OpenArt SDXL.
-                  </p>
-                </div>
-              }
-            />
           </div>
         </>
       )}
